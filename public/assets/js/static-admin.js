@@ -350,7 +350,6 @@
             if (active) link.setAttribute('aria-current', 'page');
             else link.removeAttribute('aria-current');
         });
-        document.querySelector('[data-export-dashboard]').hidden = !['dashboard', 'reports'].includes(moduleName);
         feedback = moduleContent.querySelector('[data-feedback]');
         moduleNote = moduleContent.querySelector('[data-module-note]');
         closeMenu();

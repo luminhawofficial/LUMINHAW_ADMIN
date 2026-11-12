@@ -160,9 +160,6 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <h1><?= e($titles[$module]) ?></h1>
                     <p class="page-subtitle">LUMINHAW administration · <?= e($roleLabel) ?></p>
                 </div>
-                <?php if ($module === 'dashboard'): ?>
-                    <button class="date-filter" type="button" data-export-dashboard>Export dashboard CSV</button>
-                <?php endif; ?>
             </section>
 
             <?php if ($module === 'dashboard'): ?>
