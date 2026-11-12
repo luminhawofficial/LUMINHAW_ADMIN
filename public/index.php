@@ -242,7 +242,7 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <?php elseif ($module === 'plants'): ?>
                         <div class="table-scroll"><table><thead><tr><th>SCIENTIFIC NAME</th><th>COMMON NAME</th><th>FAMILY</th><th>CARE REVIEWED</th><th>SOURCE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'scans'): ?>
-                        <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>MATCH CONFIDENCE</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
+                        <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>MATCH CONFIDENCE</th><th>MATCH</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'health'): ?>
                         <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'garden'): ?>

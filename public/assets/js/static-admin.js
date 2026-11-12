@@ -1,4 +1,5 @@
 (() => {
+    const MATCH_CONFIDENCE_THRESHOLD = 0.8;
     const body = document.body;
     const moduleLabels = {
         dashboard: 'Dashboard',
@@ -752,7 +753,7 @@
         return suggestion?.details?.scientific_name ?? suggestion?.name ?? 'No plant match';
     }
 
-    function matchConfidence(result) {
+    function matchProbability(result) {
         const probability = result?.classification?.suggestions?.[0]?.probability;
         if (
             typeof probability !== 'number' ||
@@ -760,9 +761,21 @@
             probability < 0 ||
             probability > 1
         ) {
-            return '—';
+            return null;
         }
+        return probability;
+    }
+
+    function matchConfidence(result) {
+        const probability = matchProbability(result);
+        if (probability === null) return '—';
         return `${(probability * 100).toFixed(1)}%`;
+    }
+
+    function matchStatus(result) {
+        const probability = matchProbability(result);
+        if (probability === null) return '—';
+        return probability >= MATCH_CONFIDENCE_THRESHOLD ? 'Match' : 'Low confidence';
     }
 
     function addImage(cellElement, src) {
@@ -783,7 +796,7 @@
         try {
             const payload = await requestApi(action);
             const records = payload.records ?? [];
-            const columnCount = isHealth ? 6 : 7;
+            const columnCount = isHealth ? 6 : 8;
             setRows(records, columnCount, (record) => {
                 const row = document.createElement('tr');
                 const imageCell = document.createElement('td');
@@ -794,7 +807,12 @@
                     cell(profileName),
                     cell(suggestedName(record.result, isHealth))
                 );
-                if (!isHealth) row.append(cell(matchConfidence(record.result)));
+                if (!isHealth) {
+                    row.append(
+                        cell(matchConfidence(record.result)),
+                        cell(matchStatus(record.result))
+                    );
+                }
                 row.append(
                     cell(record.provider),
                     statusBadge(record.status),
@@ -804,10 +822,10 @@
             });
             setFeedback(isHealth
                 ? 'AI health assessments are informational, not verified diagnoses.'
-                : 'Match confidence is the identification provider score, not a guarantee that the result is correct.');
+                : `Match confidence of ${MATCH_CONFIDENCE_THRESHOLD * 100}% or higher is labeled Match; lower scores are Low confidence. This score is not a guarantee of correct identification.`);
         } catch (error) {
             setFeedback(error.message, true);
-            emptyRow(document.querySelector('[data-records]'), isHealth ? 6 : 7, error.message);
+            emptyRow(document.querySelector('[data-records]'), isHealth ? 6 : 8, error.message);
         }
     }
 
