@@ -190,6 +190,7 @@
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
             payment_records_unavailable: 'Payment records could not be loaded.',
             payment_review_failed: 'The payment review was not completed.',
+            invalid_announcement: 'Provide both dates and make sure expiry is after the start date.',
             private_receipt_unavailable: 'A private receipt could not be opened safely.',
             announcement_create_failed: 'The announcement was not saved.',
             admin_role_assignment_failed: 'The administrator role was not changed. Check the target account and final Super Admin protection.',
@@ -390,17 +391,36 @@
             userOffset += 25;
             loadUsers();
         });
-        moduleContent.querySelector('[data-announcement-form]')?.addEventListener('submit', async (event) => {
+        const announcementForm = moduleContent.querySelector('[data-announcement-form]');
+        if (announcementForm) {
+            announcementForm.elements.namedItem('published_at').value = localDateTimeValue(new Date());
+        }
+        announcementForm?.addEventListener('submit', async (event) => {
             event.preventDefault();
             const form = event.currentTarget;
             const formData = new FormData(form);
+            const publishedAt = new Date(String(formData.get('published_at') ?? ''));
+            const expiresAt = new Date(String(formData.get('expires_at') ?? ''));
+            if (
+                Number.isNaN(publishedAt.getTime()) ||
+                Number.isNaN(expiresAt.getTime()) ||
+                expiresAt <= publishedAt
+            ) {
+                showToast('Choose a valid expiry date and time after the start date and time.');
+                return;
+            }
             try {
                 await requestApi('announcements.create', {
                     method: 'POST',
-                    data: Object.fromEntries(formData.entries()),
+                    data: {
+                        ...Object.fromEntries(formData.entries()),
+                        published_at: publishedAt.toISOString(),
+                        expires_at: expiresAt.toISOString(),
+                    },
                 });
                 form.reset();
-                showToast('Announcement published to the LUMINHAW app feed. Push delivery was not performed.');
+                form.elements.namedItem('published_at').value = localDateTimeValue(new Date());
+                showToast('Announcement saved. It will appear in the app feed during its scheduled dates.');
                 await loadAnnouncements();
             } catch (error) {
                 showToast(error.message);
@@ -503,6 +523,26 @@
         if (!value) return '—';
         const date = new Date(value);
         return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
+    }
+
+    function localDateTimeValue(date) {
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+            .toISOString()
+            .slice(0, 16);
+    }
+
+    function announcementVisibility(announcement) {
+        if (!announcement.is_active) return 'Inactive';
+        const publishedAt = Date.parse(announcement.published_at);
+        if (!Number.isFinite(publishedAt)) return 'Invalid schedule';
+        if (publishedAt > Date.now()) return 'Scheduled';
+        const expiresAt = announcement.expires_at === null
+            ? Number.POSITIVE_INFINITY
+            : Date.parse(announcement.expires_at);
+        if (!Number.isFinite(expiresAt) && expiresAt !== Number.POSITIVE_INFINITY) {
+            return 'Invalid schedule';
+        }
+        return expiresAt <= Date.now() ? 'Expired' : 'Visible in app';
     }
 
     function formatCount(value) {
@@ -993,11 +1033,11 @@
                     cell(announcement.category),
                     cell(formatDate(announcement.published_at)),
                     cell(formatDate(announcement.expires_at)),
-                    cell(announcement.is_active ? 'Yes' : 'No')
+                    cell(announcementVisibility(announcement))
                 );
                 return row;
             });
-            setFeedback('Announcements are stored in the shared app feed; no push delivery is configured.');
+            setFeedback('Expired announcements are hidden from the app feed but retained in this admin history.');
         } catch (error) {
             setFeedback(error.message, true);
             emptyRow(document.querySelector('[data-records]'), 5, error.message);

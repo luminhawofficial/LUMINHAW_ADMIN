@@ -257,10 +257,12 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                             <label>Title<input name="title" maxlength="120" required></label>
                             <label>Message<textarea name="body" maxlength="4000" rows="4" required></textarea></label>
                             <label>Type<select name="category"><option value="update">Update</option><option value="maintenance">Maintenance</option><option value="feature">Feature</option><option value="account">Account</option></select></label>
+                            <label>Start date and time (local)<input name="published_at" type="datetime-local" required></label>
+                            <label>Expiry date and time (local)<input name="expires_at" type="datetime-local" required></label>
                             <button class="primary-button" type="submit">Publish to app feed</button>
-                            <p class="module-note">This saves a database announcement; it does not send a push notification.</p>
+                            <p class="module-note">Announcements appear in the app feed during this time window. Expired announcements are hidden from users and retained here; no phone notification is sent.</p>
                         </form>
-                        <div class="table-scroll"><table><thead><tr><th>TITLE</th><th>TYPE</th><th>PUBLISHED</th><th>EXPIRES</th><th>ACTIVE</th></tr></thead><tbody data-records></tbody></table></div>
+                        <div class="table-scroll"><table><thead><tr><th>TITLE</th><th>TYPE</th><th>STARTS</th><th>EXPIRES</th><th>VISIBILITY</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'admins'): ?>
                         <form class="role-form" data-role-form>
                             <label>Existing Auth user ID<input name="user_id" autocomplete="off" required placeholder="UUID of an existing account"></label>
