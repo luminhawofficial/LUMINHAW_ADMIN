@@ -746,17 +746,32 @@
         }
     }
 
+    function firstPlantSuggestion(result) {
+        if (!result || typeof result !== 'object') return null;
+        const suggestion =
+            result.classification?.suggestions?.[0] ??
+            result.result?.classification?.suggestions?.[0] ??
+            result.matches?.[0];
+        return suggestion && typeof suggestion === 'object' ? suggestion : null;
+    }
+
     function suggestedName(result, isHealth) {
         if (!result || typeof result !== 'object') return '—';
         if (isHealth) {
             return result.diagnosis ?? result.condition ?? result.health_status ?? 'Assessment result';
         }
-        const suggestion = result.classification?.suggestions?.[0];
-        return suggestion?.details?.scientific_name ?? suggestion?.name ?? 'No plant match';
+        const suggestion = firstPlantSuggestion(result);
+        const commonNames = suggestion?.details?.common_names ?? suggestion?.common_names;
+        return suggestion?.details?.scientific_name ??
+            suggestion?.scientific_name ??
+            suggestion?.name ??
+            (Array.isArray(commonNames) ? commonNames[0] : null) ??
+            'No plant match';
     }
 
     function matchProbability(result) {
-        const probability = result?.classification?.suggestions?.[0]?.probability;
+        const suggestion = firstPlantSuggestion(result);
+        const probability = suggestion?.probability ?? suggestion?.score;
         if (
             typeof probability !== 'number' ||
             !Number.isFinite(probability) ||
