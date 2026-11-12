@@ -1,90 +1,59 @@
-# LUMINHAW Admin
+# LUMINHAW Administration
 
-LUMINHAW Admin is a PHP administrator console for the existing LUMINHAW Supabase project. This repository also publishes a static login-page preview through GitHub Pages.
+This repository contains two clients for the existing LUMINHAW Supabase project:
 
-## GitHub Pages preview
+- The static HTML/JavaScript administrator app at [index.html](./index.html), deployed on GitHub Pages.
+- The original PHP app under `public/` and `app/`, preserved for PHP-capable servers.
 
-The GitHub Pages site is configured to publish the `main` branch from the repository root:
+GitHub Pages cannot execute PHP. The Pages app signs in with Supabase Auth in the browser and sends authenticated requests directly to the existing `admin-api` Edge Function. The Edge Function remains responsible for authorization and privileged database access. The static app does not connect directly to PostgreSQL or replace the existing database/RLS policies.
 
-<https://luminhawofficial.github.io/LUMINHAW_ADMIN/>
+## GitHub Pages deployment
 
-The root `index.html` displays a static page styled like the admin login. Its fields are disabled; it does not collect credentials or authenticate users.
+GitHub Pages URL: <https://luminhawofficial.github.io/LUMINHAW_ADMIN/>
 
-GitHub Pages serves static files only. It cannot execute PHP, process sessions, or run the Supabase-backed admin API. The actual login and dashboard remain in `public/` and require a PHP server. No external PHP hosting provider is configured by this repository.
+The `Deploy static admin app to GitHub Pages` workflow publishes on pushes to `main`. In **Settings → Pages**, set the build and deployment source to **GitHub Actions**.
 
-## Application structure
+Configure these repository **Actions variables** under **Settings → Secrets and variables → Actions → Variables**:
 
-- `index.html` is the static GitHub Pages preview.
-- `public/index.php` is the protected PHP dashboard entry point.
-- `public/login.php` renders and processes administrator sign-in.
-- `public/logout.php` accepts a CSRF-protected POST and destroys the local PHP session.
-- `public/api.php` exposes authenticated API actions.
-- `public/.htaccess` configures the PHP document index and `/login` route for Apache with `mod_rewrite`.
-- `public/assets/` contains the PHP panel's CSS, JavaScript, fonts, and images. The static preview reuses its stylesheet and logo.
-- `app/Services/` contains the Supabase client, administrator authentication, and login rate limiter.
-- `app/Config/` loads the private environment configuration.
-- `storage/` contains private PHP session and login rate-limit state.
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | The existing Supabase project URL, for example `https://YOUR_PROJECT_REF.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | That project's publishable/anon client key |
 
-The PHP app uses Supabase Auth and the existing `admin-api` Supabase Edge Function over HTTPS; it does not connect directly to PostgreSQL. Existing tables, relationships, and Row Level Security stay in the existing Supabase project. The PHP app uses the Supabase publishable key and the signed-in user's access token. A service-role key must remain secret in the Supabase Edge Function runtime and must never be committed or sent to browser JavaScript.
+These are public client configuration values: the workflow embeds them in the static site so the browser can connect to Supabase. The publishable/anon key is not a service-role key and must only be used with the existing Edge Function's authorization checks and database RLS. **Never put a service-role key, Supabase secret key, password, or private key in Actions variables, the workflow, or static files.** The workflow rejects non-publishable keys.
 
-## Run the PHP application locally
+After adding the variables, run or re-run the workflow from the **Actions** tab. Supabase Auth must allow the Pages URL as a redirect URL for any auth email/redirect flows:
 
-Requirements:
+```text
+https://luminhawofficial.github.io/LUMINHAW_ADMIN/**
+```
 
-- PHP 8.1 or later.
-- PHP extensions `curl`, `json`, and `session`.
-- Network access to the existing Supabase project.
+The browser app stores its Supabase session in tab-scoped `sessionStorage`, refreshes tokens through Supabase Auth, checks the active administrator role through `admin-api`, and expires inactive sessions client-side. The Edge Function must continue to verify roles for every request; hiding a menu item is not an authorization boundary.
+
+## Existing PHP app
+
+The original PHP authentication system remains in `public/login.php`, `public/index.php`, `public/api.php`, and `public/logout.php`, with shared services in `app/`. The PHP app uses Supabase Auth and the same `admin-api` Edge Function. It is not executed by GitHub Pages.
+
+To run it locally, use PHP 8.1+ with the `curl`, `json`, and `session` extensions:
 
 1. Copy `.env.example` to `.env`.
-2. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` to the existing Supabase project values. Keep `.env` private and out of source control.
-3. From the repository directory, run:
+2. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` to the existing project values. Keep `.env` private.
+3. Run:
 
    ```powershell
    php -S localhost:8000 -t public
    ```
 
-4. Open <http://localhost:8000/> or <http://localhost:8000/login.php>. An unauthenticated request to `/` redirects to the login page. An account must be confirmed in Supabase Auth and have an active administrator role to access the dashboard.
+4. Open <http://localhost:8000/login.php>.
 
-PHP session files and login rate-limit state are stored in `storage/`; the PHP process must be able to write there. For a PHP server, use `public/` as the document root so private configuration, application code, and storage are not web-accessible.
+The PHP app stores session and rate-limit files under private, writable directories in `storage/`. When using a PHP host, serve only `public/` as the document root; keep `.env`, `app/`, and `storage/` outside the public web root. Use HTTPS in production.
 
-## Supabase setup
+## Supabase setup and security
 
-Run Supabase CLI commands from the existing Flutter/Supabase project directory (`LUMINHAW`), not this PHP repository:
+Use the existing LUMINHAW Supabase project and deployed `admin-api` Edge Function. The application does not create a replacement database or disable Row Level Security. Apply or deploy migrations/functions only from the existing Supabase project workflow after reviewing them.
 
-```powershell
-supabase login
-supabase link --project-ref YOUR_PROJECT_REF
-supabase db push
-supabase functions deploy admin-api
-```
+The static app sends user sign-in credentials directly to Supabase Auth over HTTPS. It sends the resulting user's access token to `admin-api`; no service-role credential is sent to the browser. The Edge Function must verify the user and administrator role for every operation, enforce role-specific privileges, and perform privileged database access server-side.
 
-Review the migration list and SQL against the target project before applying changes. Deploy the existing `admin-api` Edge Function and configure its required secrets in the Supabase runtime. Do not copy a service-role key into this repository, `.env`, the public directory, or browser code. Do not create a replacement database or disable Row Level Security.
+For administrator accounts, require confirmed email and an active row in `public.admin_roles`. A normal Supabase account must not gain administrator access merely by knowing the publishable key.
 
-The payment-review email path also depends on the existing payment-email configuration. Configure `RESEND_API_KEY` and a verified sender (`RESEND_FROM_EMAIL` or `PREMIUM_EMAIL_FROM`) as Supabase Edge Function secrets if email delivery is required. Without that provider configuration, payment status changes can still be recorded, but the dashboard must not be interpreted as proof that an email was sent.
-
-### Bootstrap the first Super Admin
-
-1. Create or invite the operator's account in Supabase Auth and have them complete sign-in once.
-2. In the Supabase SQL Editor, find that account's UUID in **Authentication → Users**.
-3. Insert the assignment, replacing the placeholder with that UUID:
-
-   ```sql
-   insert into public.admin_roles (user_id, role, status)
-   values ('AUTH_USER_UUID'::uuid, 'super_admin', 'active')
-   on conflict (user_id) do update
-   set role = excluded.role,
-       status = excluded.status,
-       updated_at = now();
-   ```
-
-4. Sign in through the PHP application's `/login` route and confirm the account can load the dashboard.
-5. Add any additional administrators from the dashboard. The final active Super Admin cannot be demoted or suspended.
-
-Do not expose the SQL Editor or service-role credentials to dashboard users.
-
-## Security notes
-
-- `.env`, local Supabase CLI state, sessions, and rate-limit files are excluded by `.gitignore`.
-- `.env.example` contains placeholders only. Never commit passwords, API secrets, service-role keys, or private keys.
-- Set `APP_ENV=production` on any PHP server deployment to disable displayed PHP errors and enable secure session cookies. Serve the PHP app only over HTTPS.
-- GitHub Pages is a static preview, not a production authentication endpoint. Do not enter real credentials into a static preview.
+The `.gitignore` excludes `.env`, local Supabase CLI state, sessions, rate limits, and the locally generated `supabase-config.js`. Never commit credentials or secrets. The public publishable key is expected to be visible to site visitors; its safety depends on Supabase Auth, Edge Function authorization, and RLS—not on hiding that key.

@@ -3,250 +3,142 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#eff6ef">
-    <meta name="description" content="LUMINHAW Administration static login preview. PHP sign-in is unavailable on GitHub Pages.">
+    <meta name="theme-color" content="#e8f5e6">
+    <meta name="description" content="LUMINHAW Admin dashboard for authorized administrators.">
     <title>LUMINHAW Administration</title>
-    <style>
-        :root {
-            color-scheme: light;
-            font-family: "Poppins", "Segoe UI", Arial, sans-serif;
-            color: #20352b;
-            background: #eff6ef;
-            font-synthesis: none;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            display: grid;
-            min-width: 320px;
-            min-height: 100vh;
-            min-height: 100svh;
-            margin: 0;
-            padding: 32px 20px;
-            place-items: center;
-            background:
-                radial-gradient(ellipse at 12% 8%, rgb(213 235 207 / 75%), transparent 34rem),
-                radial-gradient(ellipse at 91% 92%, rgb(215 235 220 / 70%), transparent 32rem),
-                #f4f8f2;
-        }
-
-        .login-card {
-            width: min(100%, 440px);
-            padding: 38px 40px 32px;
-            border: 1px solid #dfe9de;
-            border-radius: 20px;
-            background: rgb(255 255 253 / 96%);
-            box-shadow: 0 24px 70px rgb(34 78 52 / 11%), 0 3px 10px rgb(34 78 52 / 4%);
-        }
-
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 36px;
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .brand-mark {
-            display: grid;
-            width: 43px;
-            height: 43px;
-            padding: 4px;
-            place-items: center;
-            border: 1px solid #e4eee0;
-            border-radius: 13px;
-            background: #f0f7ed;
-        }
-
-        .brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
-        .brand-copy { display: grid; gap: 4px; }
-        .brand-copy strong { color: #173d2d; font-family: Georgia, "Times New Roman", serif; font-size: 15px; letter-spacing: .035em; }
-        .brand-copy small { color: #829087; font-size: 9px; font-weight: 700; letter-spacing: .17em; }
-
-        .eyebrow {
-            margin: 0 0 9px;
-            color: #63816e;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: .15em;
-        }
-
-        h1 {
-            margin: 0;
-            color: #203d2d;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(29px, 7vw, 34px);
-            font-weight: 600;
-            letter-spacing: -.035em;
-            line-height: 1.2;
-        }
-
-        .intro {
-            margin: 10px 0 22px;
-            color: #718178;
-            font-size: 12px;
-            line-height: 1.7;
-        }
-
-        .notice {
-            display: flex;
-            gap: 11px;
-            margin: 0 0 23px;
-            padding: 13px 14px;
-            border: 1px solid #e6dcbf;
-            border-radius: 11px;
-            background: #fffaf0;
-            color: #705b2e;
-            font-size: 11px;
-            line-height: 1.65;
-        }
-
-        .notice-icon {
-            display: grid;
-            width: 19px;
-            height: 19px;
-            flex: 0 0 19px;
-            place-items: center;
-            border-radius: 50%;
-            background: #f4e8c9;
-            color: #846b32;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .notice strong { display: block; margin-bottom: 2px; color: #5f4b24; font-size: 11px; }
-        .preview-fields { display: grid; gap: 9px; }
-        .preview-fields label { margin-top: 3px; color: #355b46; font-size: 11px; font-weight: 600; }
-
-        .preview-fields input {
-            width: 100%;
-            min-height: 46px;
-            padding: 11px 13px;
-            border: 1px solid #d8e3d7;
-            border-radius: 9px;
-            outline: none;
-            background: #f7f9f6;
-            color: #7e8b82;
-            font: inherit;
-            font-size: 12px;
-            opacity: 1;
-            -webkit-text-fill-color: #7e8b82;
-        }
-
-        .preview-fields input::placeholder { color: #99a39b; opacity: 1; }
-
-        .disabled-signin {
-            display: flex;
-            width: 100%;
-            min-height: 44px;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 8px;
-            padding: 10px 14px;
-            border: 1px solid #d5e0d3;
-            border-radius: 9px;
-            background: #eaf1e8;
-            color: #617765;
-            font: inherit;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: not-allowed;
-        }
-
-        .disabled-signin svg { width: 15px; height: 15px; }
-
-        .privacy-note {
-            margin: 17px 0 0;
-            color: #7b8980;
-            font-size: 10px;
-            line-height: 1.65;
-            text-align: center;
-        }
-
-        .divider { height: 1px; margin: 23px 0 19px; background: #edf0eb; }
-
-        .repository-link {
-            display: flex;
-            min-height: 44px;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-            padding: 10px 14px;
-            border: 1px solid #d8e4d7;
-            border-radius: 9px;
-            background: #fff;
-            color: #285d43;
-            font-size: 11px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: border-color .18s, background .18s, transform .18s;
-        }
-
-        .repository-link:hover { transform: translateY(-1px); border-color: #a9c5a8; background: #f8fbf6; }
-        .repository-link:focus-visible { outline: 3px solid rgb(47 119 84 / 30%); outline-offset: 3px; }
-        .repository-link svg { width: 16px; height: 16px; }
-
-        @media (max-width: 480px) {
-            body { padding: 18px 14px; }
-            .login-card { padding: 29px 23px 25px; border-radius: 17px; }
-            .brand { margin-bottom: 30px; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
-        }
-    </style>
+    <link rel="stylesheet" href="public/assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+    <script src="supabase-config.js" defer></script>
+    <script src="public/assets/js/static-admin.js" defer></script>
 </head>
-<body>
-<main class="login-card">
-    <div class="brand" aria-label="LUMINHAW Administration">
+<body class="login-page" data-module="dashboard">
+<main class="login-card" id="login-view">
+    <div class="brand login-brand" aria-label="LUMINHAW Administration">
         <span class="brand-mark"><img src="public/assets/icons/logo.png" alt=""></span>
-        <span class="brand-copy">
-            <strong>LUMINHAW</strong>
-            <small>ADMINISTRATION</small>
-        </span>
+        <span class="brand-copy"><strong>LUMINHAW</strong><small>ADMINISTRATION</small></span>
     </div>
-
     <p class="eyebrow">SECURE ADMINISTRATION</p>
     <h1>Welcome back</h1>
-    <p class="intro">Administrator access for the LUMINHAW platform.</p>
-
-    <aside class="notice" role="note">
-        <span class="notice-icon" aria-hidden="true">!</span>
-        <span>
-            <strong>PHP Sign-in Unavailable on GitHub Pages.</strong>
-            GitHub Pages only supports static websites and cannot run the PHP login or dashboard.
-        </span>
-    </aside>
-
-    <div class="preview-fields" aria-label="Non-functional login preview">
-        <label for="email-preview">Email Address</label>
-        <input id="email-preview" type="email" placeholder="admin@example.com" autocomplete="off" disabled>
-        <label for="password-preview">Password</label>
-        <input id="password-preview" type="password" placeholder="Password entry unavailable" autocomplete="off" disabled>
-        <button class="disabled-signin" type="button" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="4" y="10" width="16" height="11" rx="2"></rect>
-                <path d="M8 10V7a4 4 0 1 1 8 0v3"></path>
-            </svg>
-            Sign-in preview only
-        </button>
-    </div>
-
-    <p class="privacy-note">This static preview does not collect, store, or transmit credentials.</p>
-    <div class="divider" aria-hidden="true"></div>
-    <a class="repository-link" href="https://github.com/luminhawofficial/LUMINHAW_ADMIN">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 1.71 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.12-1.44 3.05-1.15 3.05-1.15.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.29-2.61 5.23-5.1 5.5.4.35.76 1.02.76 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9z"></path>
-        </svg>
-        View Source Repository
-    </a>
+    <p class="login-subtitle">Sign in with an authorized, verified LUMINHAW administrator account.</p>
+    <div class="form-alert" id="login-error" role="alert" hidden></div>
+    <form method="post" id="login-form" autocomplete="on">
+        <label for="login-email">Email address</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" maxlength="254" required>
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required>
+        <button class="primary-button login-submit" type="submit">Sign in</button>
+    </form>
+    <p class="login-footnote">Access is limited to accounts assigned an active admin role. Sign-in is sent directly to Supabase Auth.</p>
 </main>
+
+<div class="app-shell" id="app-shell" hidden>
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+        <a class="brand" href="?module=dashboard" aria-label="LUMINHAW Admin home" data-home-link>
+            <span class="brand-mark"><img src="public/assets/icons/logo.png" alt=""></span>
+            <span class="brand-copy"><strong>LUMINHAW</strong><small>ADMIN CONSOLE</small></span>
+        </a>
+        <div class="nav-caption">MANAGEMENT</div>
+        <nav class="nav-list" aria-label="Management">
+            <a class="nav-item" href="?module=dashboard" data-module-link="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z"/></svg></span><span>Dashboard</span></a>
+            <a class="nav-item" href="?module=users" data-module-link="users"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>User Management</span></a>
+            <a class="nav-item" href="?module=plants" data-module-link="plants"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 4 13c0-5 8-9 16-9 0 8-4 16-9 16z M8 16c2-3 5-5 9-7"/></svg></span><span>Plant Library</span></a>
+            <a class="nav-item" href="?module=scans" data-module-link="scans"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3 M16 4h3a1 1 0 0 1 1 1v3 M20 16v3a1 1 0 0 1-1 1h-3 M8 20H5a1 1 0 0 1-1-1v-3 M8 12h8 M12 8v8"/></svg></span><span>AI Plant Identification</span></a>
+            <a class="nav-item" href="?module=health" data-module-link="health"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z M3 12h4l2-3 3 6 2-3h7"/></svg></span><span>Plant Health Monitoring</span></a>
+            <a class="nav-item" href="?module=garden" data-module-link="garden"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22v-8 M12 14c-4 0-7-2-7-6 4 0 7 2 7 6z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg></span><span>Garden Management</span></a>
+            <a class="nav-item" href="?module=subscriptions" data-module-link="subscriptions"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3z"/></svg></span><span>Premium Subscriptions</span></a>
+            <a class="nav-item" href="?module=payments" data-module-link="payments"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z M3 10h18 M7 15h3"/></svg></span><span>Payment Management</span></a>
+            <a class="nav-item" href="?module=announcements" data-module-link="announcements"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11v2a2 2 0 0 0 2 2h2l9 5V4l-9 5H5a2 2 0 0 0-2 2z M7 15l2 6h4l-3-5 M18 9a4 4 0 0 1 0 6"/></svg></span><span>Announcements</span></a>
+            <a class="nav-item" href="?module=reports" data-module-link="reports"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18 M8 16v-4 M13 16V8 M18 16v-7"/></svg></span><span>Reports &amp; Analytics</span></a>
+            <a class="nav-item" href="?module=admins" data-module-link="admins"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z M9 12l2 2 4-4"/></svg></span><span>Admin Management</span></a>
+            <a class="nav-item" href="?module=settings" data-module-link="settings"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1-1.6 2.8-.2-.1a1.7 1.7 0 0 0-1.9.3l-.1.1h-3.2l-.1-.2a1.7 1.7 0 0 0-1.5-1 1.7 1.7 0 0 0-1.5 1l-.1.2H6.4l-.1-.1a1.7 1.7 0 0 0-1.9-.3l-.2.1-1.6-2.8.1-.1A1.7 1.7 0 0 0 3 15l-.1-.2v-3.2L3 11.5a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.6-2.8.2.1a1.7 1.7 0 0 0 1.9-.3l.1-.1h3.2l.1.2a1.7 1.7 0 0 0 1.5 1 1.7 1.7 0 0 0 1.5-1l.1-.2H16l.1.1a1.7 1.7 0 0 0 1.9.3l.2-.1 1.6 2.8-.1.1a1.7 1.7 0 0 0-.3 1.9l.1.2v3.2z"/></svg></span><span>System Settings</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="sidebar-help"><strong>Protected workspace</strong><p>Access is checked against your active Supabase administrator role.</p></div>
+            <div class="admin-profile">
+                <div class="profile-avatar" data-profile-initial>A</div>
+                <div class="profile-copy"><strong data-profile-email>Administrator</strong><span data-profile-role>Admin</span></div>
+            </div>
+        </div>
+    </aside>
+    <div class="sidebar-scrim" data-close-menu></div>
+    <main class="main-content">
+        <header class="topbar">
+            <button class="icon-button menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" data-menu-toggle>☰</button>
+            <div class="breadcrumbs"><span>Management</span><span class="crumb-divider">/</span><strong data-breadcrumb>Dashboard</strong></div>
+            <div class="topbar-actions">
+                <span class="environment-pill"><span></span>GitHub Pages</span>
+                <div class="topbar-avatar" aria-label="Administrator" data-topbar-avatar>A</div>
+                <button class="icon-button sign-out-button" type="button" aria-label="Sign out" title="Sign out" data-logout>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5 M15 12H3 M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>
+                </button>
+            </div>
+        </header>
+        <div class="page-content">
+            <section class="welcome-row">
+                <div><div class="eyebrow" data-date></div><h1 data-page-title>Dashboard</h1><p class="page-subtitle">LUMINHAW administration · <span data-role-label></span></p></div>
+                <button class="date-filter" type="button" data-export-dashboard>Export dashboard CSV</button>
+            </section>
+            <div id="module-content"></div>
+            <footer class="page-footer"><span>© <span data-year></span> LUMINHAW</span><span>Growing brighter, one plant at a time</span></footer>
+        </div>
+    </main>
+</div>
+<div class="toast" role="status" aria-live="polite" data-toast></div>
+
+<template id="module-dashboard">
+    <div class="page-feedback" data-feedback role="status" aria-live="polite">Loading authorized dashboard data…</div>
+    <section class="metrics-grid live-metrics" aria-label="Live key metrics" data-dashboard-metrics>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Total registered users</span><span class="metric-icon mint" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="total_users">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Active users · 30 days</span><span class="metric-icon blue" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="active_users_30d">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Verified users</span><span class="metric-icon lilac" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="verified_users">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Plant scans</span><span class="metric-icon gold" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="plant_scans">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Identified plant names</span><span class="metric-icon mint" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="identified_plants">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Garden plants</span><span class="metric-icon blue" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="garden_plants">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Active premium subscribers</span><span class="metric-icon lilac" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="premium_subscribers">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Payments awaiting review</span><span class="metric-icon gold" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="pending_payments">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Approved payments</span><span class="metric-icon mint" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="approved_payments">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span class="metric-label">Recorded subscription revenue</span><span class="metric-icon blue" aria-hidden="true">✳</span></div><div class="metric-value" data-metric="subscription_revenue_php">—</div><div class="metric-foot"><span>From Supabase records</span></div></article>
+    </section>
+    <section class="dashboard-grid">
+        <article class="panel chart-panel"><div class="panel-heading"><div><h2>Recent monthly activity</h2><p>New accounts, plant scans, and approved payment totals</p></div></div><div class="chart-legend"><span><i class="legend-dot scans"></i> Plant scans</span><span><i class="legend-dot members"></i> New users</span></div><div class="chart-wrap"><canvas id="activity-chart" aria-label="Monthly Supabase activity chart" role="img"></canvas></div></article>
+        <article class="panel popular-panel"><div class="panel-heading"><div><h2>Most identified plants</h2><p>Completed scan results in Supabase</p></div></div><div class="plant-list" data-top-plants><p class="empty-state">Loading plant results…</p></div><p class="unavailable-note" data-mau-unavailable hidden></p></article>
+    </section>
+    <section class="panel activity-panel"><div class="panel-heading"><div><h2>Monthly metrics</h2><p>Aggregated from Auth users, identification records, and approved payments</p></div></div><div class="table-scroll"><table><thead><tr><th>MONTH</th><th>NEW USERS</th><th>PLANT SCANS</th><th>APPROVED REVENUE</th></tr></thead><tbody data-monthly-rows><tr><td colspan="4">Loading…</td></tr></tbody></table></div></section>
+</template>
+
+<template id="module-users">
+    <section class="panel module-panel" data-module-panel="users" data-feedback-region><div class="module-toolbar"><label class="search-control"><span class="sr-only">Search users</span><input type="search" data-module-search placeholder="Search users"></label><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>USER</th><th>EMAIL</th><th>REGISTERED</th><th>VERIFIED</th><th>PLAN</th><th>ACCOUNT</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div><div class="pagination-controls"><button type="button" data-page-prev>Previous</button><span data-page-label></span><button type="button" data-page-next>Next</button></div></section>
+</template>
+<template id="module-plants">
+    <section class="panel module-panel" data-module-panel="plants" data-feedback-region><div class="module-toolbar"><label class="search-control"><span class="sr-only">Search plant library</span><input type="search" data-module-search placeholder="Search plant library"></label><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>SCIENTIFIC NAME</th><th>COMMON NAME</th><th>FAMILY</th><th>CARE REVIEWED</th><th>SOURCE</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-scans">
+    <section class="panel module-panel" data-module-panel="scans" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-health">
+    <section class="panel module-panel" data-module-panel="health" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-garden">
+    <section class="panel module-panel" data-module-panel="garden" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>PLANT</th><th>SCIENTIFIC NAME</th><th>OWNER</th><th>ADDED</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-subscriptions">
+    <section class="panel module-panel" data-module-panel="subscriptions" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="table-scroll"><table><thead><tr><th>USER</th><th>PRODUCT</th><th>STATUS</th><th>EXPIRES</th><th>UPDATED</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-payments">
+    <section class="panel module-panel" data-module-panel="payments" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="notice-banner">Approval is only available to Super Admins. Each approval requires confirmation that the GCash transaction was received. The existing email-token review remains available.</div><div class="table-scroll"><table><thead><tr><th>PAYMENT</th><th>USER</th><th>PLAN / AMOUNT</th><th>REFERENCE</th><th>RECEIPT</th><th>OCR REVIEW</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-announcements">
+    <section class="panel module-panel" data-module-panel="announcements" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><form class="announcement-form" data-announcement-form><label>Title<input name="title" maxlength="120" required></label><label>Message<textarea name="body" maxlength="4000" rows="4" required></textarea></label><label>Type<select name="category"><option value="update">Update</option><option value="maintenance">Maintenance</option><option value="feature">Feature</option><option value="account">Account</option></select></label><button class="primary-button" type="submit">Publish to app feed</button><p class="module-note">This saves a database announcement; it does not send a push notification.</p></form><div class="table-scroll"><table><thead><tr><th>TITLE</th><th>TYPE</th><th>PUBLISHED</th><th>EXPIRES</th><th>ACTIVE</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-admins">
+    <section class="panel module-panel" data-module-panel="admins" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><form class="role-form" data-role-form><label>Existing Auth user ID<input name="user_id" autocomplete="off" required placeholder="UUID of an existing account"></label><label>Role<select name="role"><option value="admin">Admin</option><option value="moderator">Moderator</option><option value="super_admin">Super Admin</option></select></label><label>Status<select name="status"><option value="active">Active</option><option value="suspended">Suspended</option></select></label><button class="primary-button" type="submit">Save administrator role</button></form><div class="table-scroll"><table><thead><tr><th>ADMIN</th><th>USER ID</th><th>ROLE</th><th>STATUS</th><th>ASSIGNED</th></tr></thead><tbody data-records></tbody></table></div></section>
+</template>
+<template id="module-reports">
+    <section class="panel module-panel" data-module-panel="reports" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Loading authorized records…</p></div><div class="report-summary"><p>Reports use real records returned by the dashboard API. Historical monthly active users are unavailable because the existing schema does not store activity snapshots.</p><button class="secondary-button" type="button" data-export-dashboard>Export available metrics as CSV</button></div></section>
+</template>
+<template id="module-settings">
+    <section class="panel module-panel" data-module-panel="settings" data-feedback-region><div class="module-toolbar"><p class="module-note" data-module-note>Security and integration information for this workspace.</p></div><dl class="settings-list"><div><dt>Authentication</dt><dd>Supabase Auth · verified administrator role required</dd></div><div><dt>Database access</dt><dd>Existing Supabase Edge Function with server-only service credentials</dd></div><div><dt>Session policy</dt><dd>Supabase-managed tokens with automatic refresh · sign out when finished</dd></div><div><dt>Push delivery</dt><dd>Not configured by the existing announcement schema</dd></div></dl></section>
+</template>
 </body>
 </html>

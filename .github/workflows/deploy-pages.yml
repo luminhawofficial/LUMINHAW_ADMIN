@@ -1,0 +1,81 @@
+name: Deploy static admin app to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static site
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          mkdir -p dist/public/assets
+          cp index.html dist/index.html
+          cp -R public/assets/. dist/public/assets/
+          node <<'NODE'
+          const fs = require('node:fs');
+          const url = process.env.SUPABASE_URL;
+          const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+
+          if (!url || !key) {
+            throw new Error('Set the SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY repository variables before deploying.');
+          }
+          if (!/^https:\/\/[^/]+$/.test(url)) {
+            throw new Error('SUPABASE_URL must be an HTTPS project origin.');
+          }
+          if (!key.startsWith('sb_publishable_')) {
+            const encoded = key.split('.')[1] || '';
+            let claims;
+            try {
+              claims = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+            } catch {
+              throw new Error('Only a Supabase publishable or legacy anon key is allowed in the static app.');
+            }
+            if (claims.role !== 'anon') {
+              throw new Error('Only a Supabase publishable or legacy anon key is allowed in the static app.');
+            }
+          }
+
+          fs.writeFileSync(
+            'dist/supabase-config.js',
+            `window.LUMINHAW_CONFIG = ${JSON.stringify({ supabaseUrl: url, publishableKey: key })};\n`,
+            { mode: 0o644 },
+          );
+          NODE
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -7,3 +7,5 @@
 /storage/rate-limits/
 /storage/sessions/
 /supabase/.temp/
+/supabase-config.js
+/dist/
