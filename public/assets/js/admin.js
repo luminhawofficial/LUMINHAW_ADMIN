@@ -388,6 +388,19 @@
         return suggestion?.details?.scientific_name ?? suggestion?.name ?? 'No plant match';
     }
 
+    function matchConfidence(result) {
+        const probability = result?.classification?.suggestions?.[0]?.probability;
+        if (
+            typeof probability !== 'number' ||
+            !Number.isFinite(probability) ||
+            probability < 0 ||
+            probability > 1
+        ) {
+            return '—';
+        }
+        return `${(probability * 100).toFixed(1)}%`;
+    }
+
     function addImage(cellElement, src) {
         if (typeof src !== 'string' || !src.startsWith('https://')) {
             cellElement.textContent = 'No image';
@@ -406,7 +419,8 @@
         try {
             const payload = await requestApi(action);
             const records = payload.records ?? [];
-            setRows(records, 6, (record) => {
+            const columnCount = isHealth ? 6 : 7;
+            setRows(records, columnCount, (record) => {
                 const row = document.createElement('tr');
                 const imageCell = document.createElement('td');
                 addImage(imageCell, record.image_url);
@@ -414,7 +428,10 @@
                 row.append(
                     imageCell,
                     cell(profileName),
-                    cell(suggestedName(record.result, isHealth)),
+                    cell(suggestedName(record.result, isHealth))
+                );
+                if (!isHealth) row.append(cell(matchConfidence(record.result)));
+                row.append(
                     cell(record.provider),
                     statusBadge(record.status),
                     cell(formatDate(record.created_at))
@@ -423,10 +440,10 @@
             });
             setFeedback(isHealth
                 ? 'AI health assessments are informational, not verified diagnoses.'
-                : 'Original identification results are shown without modification.');
+                : 'Match confidence is the identification provider score, not a guarantee that the result is correct.');
         } catch (error) {
             setFeedback(error.message, true);
-            emptyRow(document.querySelector('[data-records]'), 6, error.message);
+            emptyRow(document.querySelector('[data-records]'), isHealth ? 6 : 7, error.message);
         }
     }
 

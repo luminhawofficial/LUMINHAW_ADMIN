@@ -241,7 +241,9 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                         <div class="pagination-controls"><button type="button" data-page-prev>Previous</button><span data-page-label></span><button type="button" data-page-next>Next</button></div>
                     <?php elseif ($module === 'plants'): ?>
                         <div class="table-scroll"><table><thead><tr><th>SCIENTIFIC NAME</th><th>COMMON NAME</th><th>FAMILY</th><th>CARE REVIEWED</th><th>SOURCE</th></tr></thead><tbody data-records></tbody></table></div>
-                    <?php elseif (in_array($module, ['scans', 'health'], true)): ?>
+                    <?php elseif ($module === 'scans'): ?>
+                        <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>MATCH CONFIDENCE</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
+                    <?php elseif ($module === 'health'): ?>
                         <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'garden'): ?>
                         <div class="table-scroll"><table><thead><tr><th>PLANT</th><th>SCIENTIFIC NAME</th><th>OWNER</th><th>ADDED</th></tr></thead><tbody data-records></tbody></table></div>
