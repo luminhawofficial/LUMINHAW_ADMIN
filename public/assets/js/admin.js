@@ -707,13 +707,14 @@
 
     document.querySelector('[data-announcement-form]')?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
+        const form = event.currentTarget;
+        const formData = new FormData(form);
         try {
             await requestApi('announcements.create', {
                 method: 'POST',
                 data: Object.fromEntries(formData.entries()),
             });
-            event.currentTarget.reset();
+            form.reset();
             showToast('Announcement published to the LUMINHAW app feed. Push delivery was not performed.');
             await loadAnnouncements();
         } catch (error) {
@@ -723,13 +724,14 @@
 
     document.querySelector('[data-role-form]')?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
+        const form = event.currentTarget;
+        const formData = new FormData(form);
         try {
             await requestApi('roles.set', {
                 method: 'POST',
                 data: Object.fromEntries(formData.entries()),
             });
-            event.currentTarget.reset();
+            form.reset();
             showToast('Administrator role saved.');
             await loadAdmins();
         } catch (error) {
