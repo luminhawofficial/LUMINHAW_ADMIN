@@ -52,7 +52,10 @@ svg { display: block; width: 20px; height: 20px; }
 .icon-button { display: grid; flex: 0 0 auto; width: 36px; height: 36px; place-items: center; padding: 0; border: 0; border-radius: 9px; background: transparent; color: #758279; cursor: pointer; }
 .icon-button:hover { background: #f3f6f2; color: var(--green-dark); }
 .icon-button svg { width: 19px; height: 19px; }
-.profile-menu { width: 28px; height: 30px; }
+.sign-out-button { width: 32px; height: 32px; border: 1px solid #f0dfda; background: #fff8f6; color: #a45b4e; }
+.sign-out-button:hover, .sign-out-button:focus-visible { background: #f9e9e5; color: #8c3f33; }
+.sign-out-button:focus-visible { outline: 2px solid #c97d6e; outline-offset: 2px; }
+.topbar-actions form { margin: 0; }
 
 .main-content { min-height: 100vh; margin-left: var(--sidebar-width); }
 .topbar { position: sticky; z-index: 10; top: 0; display: flex; height: 68px; align-items: center; justify-content: space-between; padding: 0 38px; border-bottom: 1px solid #edf0eb; background: rgb(255 255 255 / 92%); backdrop-filter: blur(12px); }

@@ -130,10 +130,6 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <strong><?= e($userEmail) ?></strong>
                     <span><?= e($roleLabel) ?></span>
                 </div>
-                <form method="post" action="logout.php">
-                    <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                    <button class="icon-button profile-menu" type="submit" aria-label="Sign out">↗</button>
-                </form>
             </div>
         </div>
     </aside>
@@ -146,6 +142,15 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
             <div class="topbar-actions">
                 <span class="environment-pill"><span></span><?= e(getenv('APP_ENV') ?: 'local') ?></span>
                 <div class="topbar-avatar" aria-label="<?= e($userEmail) ?>"><?= e(strtoupper(substr($userEmail, 0, 1))) ?></div>
+                <form method="post" action="logout.php" data-logout-form>
+                    <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
+                    <button class="icon-button sign-out-button" type="submit" aria-label="Sign out" title="Sign out">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10 17l5-5-5-5 M15 12H3 M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"></path>
+                        </svg>
+                    </button>
+                </form>
             </div>
         </header>
         <div class="page-content">

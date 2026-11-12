@@ -8,6 +8,7 @@
     const moduleNote = document.querySelector('[data-module-note]');
     const menuToggle = document.querySelector('[data-menu-toggle]');
     const scrim = document.querySelector('[data-close-menu]');
+    const logoutForm = document.querySelector('[data-logout-form]');
     let toastTimer;
     let dashboardSummary = null;
     let userOffset = 0;
@@ -23,6 +24,11 @@
         menuToggle.setAttribute('aria-expanded', String(isOpen));
     });
     scrim?.addEventListener('click', closeMenu);
+    logoutForm?.addEventListener('submit', (event) => {
+        if (!window.confirm('Are you sure you want to sign out?')) {
+            event.preventDefault();
+        }
+    });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeMenu();
     });
