@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e8f5e6">
+    <meta name="description" content="LUMINHAW Admin Panel static preview. PHP sign-in is not available on GitHub Pages.">
+    <title>Administrator sign in · LUMINHAW</title>
+    <link rel="stylesheet" href="public/assets/css/admin.css">
+    <style>
+        .preview-notice {
+            margin: 18px 0;
+            padding: 12px 14px;
+            border: 1px solid #d6e5d5;
+            border-radius: 9px;
+            background: #f0f7ed;
+            color: #355b46;
+            font-size: 11px;
+            line-height: 1.65;
+        }
+        .preview-fields { display: grid; gap: 9px; margin-top: 20px; }
+        .preview-fields label { margin-top: 4px; color: #355b46; font-size: 11px; font-weight: 600; }
+        .preview-fields input {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid #ccdfcd;
+            border-radius: 8px;
+            background: #f4f6f2;
+            color: #829087;
+            font: inherit;
+            font-size: 12px;
+        }
+        .preview-button {
+            width: 100%;
+            min-height: 38px;
+            margin-top: 8px;
+            border: 1px solid #aebdaf;
+            border-radius: 8px;
+            background: #dfe8dc;
+            color: #506453;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+        .preview-link { display: inline-block; margin-top: 14px; color: #07583e; font-size: 11px; font-weight: 600; }
+        .preview-link:focus-visible { outline: 2px solid #07583e; outline-offset: 3px; }
+    </style>
+</head>
+<body class="login-page">
+<main class="login-card">
+    <a class="brand login-brand" href="./" aria-label="LUMINHAW Admin preview home">
+        <span class="brand-mark"><img src="public/assets/icons/logo.png" alt=""></span>
+        <span class="brand-copy"><strong>LUMINHAW</strong><small>ADMIN CONSOLE</small></span>
+    </a>
+    <p class="eyebrow">SECURE ADMINISTRATION</p>
+    <h1>Welcome back</h1>
+    <p class="login-subtitle">Sign in with an authorized, verified LUMINHAW administrator account.</p>
+
+    <aside class="preview-notice" role="status">
+        Static preview only. GitHub Pages cannot run the PHP login or dashboard. This page does not collect credentials or authenticate users.
+    </aside>
+
+    <div class="preview-fields" aria-label="Sign-in form preview">
+        <label for="email-preview">Email address</label>
+        <input id="email-preview" type="email" placeholder="name@example.com" disabled>
+        <label for="password-preview">Password</label>
+        <input id="password-preview" type="password" placeholder="Unavailable in static preview" disabled>
+        <button class="preview-button" type="button" disabled>PHP sign-in unavailable on GitHub Pages</button>
+    </div>
+
+    <p class="login-footnote">The PHP application remains in this repository. Run it on a PHP server to use administrator sign-in.</p>
+    <a class="preview-link" href="https://github.com/luminhawofficial/LUMINHAW_ADMIN">View source repository</a>
+</main>
+</body>
+</html>

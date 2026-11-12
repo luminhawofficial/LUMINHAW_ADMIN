@@ -6,3 +6,4 @@
 !/storage/logs/.gitkeep
 /storage/rate-limits/
 /storage/sessions/
+/supabase/.temp/
