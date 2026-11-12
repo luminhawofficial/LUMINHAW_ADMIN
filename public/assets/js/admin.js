@@ -546,10 +546,19 @@
                     },
                 });
                 const deliveryStatus = result.notification?.status ?? 'unknown';
-                const decisionLabel = approve ? 'approved' : 'rejected';
-                showToast(
-                    `Payment ${decisionLabel}. Customer email status: ${deliveryStatus}.`
-                );
+                if (!approve) {
+                    showToast(`Payment rejected. Customer email status: ${deliveryStatus}.`);
+                } else if (deliveryStatus === 'sent') {
+                    showToast('Payment approved. Confirmation email sent to the customer.');
+                } else if (deliveryStatus === 'failed') {
+                    showToast('Payment approved, but the confirmation email was not sent. Check email delivery configuration.');
+                } else if (deliveryStatus === 'not_configured') {
+                    showToast('Payment approved, but no customer confirmation email was configured.');
+                } else if (deliveryStatus === 'processing') {
+                    showToast('Payment approved. The confirmation email is still processing.');
+                } else {
+                    showToast('Payment approved, but confirmation email delivery could not be confirmed.');
+                }
                 await loadPayments();
             } catch (error) {
                 showToast(error.message);
