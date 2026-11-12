@@ -4,7 +4,6 @@
     const moduleLabels = {
         dashboard: 'Dashboard',
         users: 'User Management',
-        plants: 'Plant Library',
         scans: 'AI Plant Identification',
         health: 'Plant Health Monitoring',
         garden: 'Garden Management',
@@ -17,8 +16,8 @@
     };
     const roleModules = {
         super_admin: Object.keys(moduleLabels),
-        admin: ['dashboard', 'users', 'plants', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
-        moderator: ['dashboard', 'plants', 'scans', 'health', 'reports'],
+        admin: ['dashboard', 'users', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
+        moderator: ['dashboard', 'scans', 'health', 'reports'],
     };
     const moduleContent = document.querySelector('#module-content');
     const loginView = document.querySelector('#login-view');
@@ -369,16 +368,12 @@
             button.addEventListener('click', exportDashboard);
         });
         const search = moduleContent.querySelector('[data-module-search]');
-        if (search && (moduleName === 'users' || moduleName === 'plants')) {
+        if (search && moduleName === 'users') {
             search.addEventListener('input', () => {
                 window.clearTimeout(userSearchTimer);
                 userSearchTimer = window.setTimeout(() => {
-                    if (moduleName === 'users') {
-                        userOffset = 0;
-                        loadUsers();
-                    } else {
-                        loadPlants();
-                    }
+                    userOffset = 0;
+                    loadUsers();
                 }, 250);
             });
         }
@@ -452,9 +447,6 @@
                 break;
             case 'users':
                 loadUsers();
-                break;
-            case 'plants':
-                loadPlants();
                 break;
             case 'scans':
                 loadPlantRecords('scans.list', false);
@@ -760,28 +752,6 @@
             await loadUsers();
         } catch (error) {
             showToast(error.message);
-        }
-    }
-
-    async function loadPlants() {
-        const search = document.querySelector('[data-module-search]')?.value.trim() ?? '';
-        try {
-            const payload = await requestApi('plants.list', { data: { search, limit: 50 } });
-            setRows(payload.plants, 5, (plant) => {
-                const row = document.createElement('tr');
-                row.append(
-                    cell(plant.scientific_name),
-                    cell(plant.common_name),
-                    cell(plant.family),
-                    cell(plant.care?.reviewed ? 'Reviewed' : 'Unreviewed'),
-                    cell(plant.description_source ?? plant.care?.source_url)
-                );
-                return row;
-            });
-            setFeedback('Catalog records and source metadata are read-only in this view.');
-        } catch (error) {
-            setFeedback(error.message, true);
-            emptyRow(document.querySelector('[data-records]'), 5, error.message);
         }
     }
 

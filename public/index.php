@@ -21,7 +21,6 @@ $module = (string) ($_GET['module'] ?? 'dashboard');
 $titles = [
     'dashboard' => 'Dashboard',
     'users' => 'User Management',
-    'plants' => 'Plant Library',
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
@@ -40,8 +39,8 @@ if (!isset($titles[$module])) {
 $role = $admin['role'];
 $visibleModules = match ($role) {
     'super_admin' => array_keys($titles),
-    'admin' => ['dashboard', 'users', 'plants', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
-    default => ['dashboard', 'plants', 'scans', 'health', 'reports'],
+    'admin' => ['dashboard', 'users', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
+    default => ['dashboard', 'scans', 'health', 'reports'],
 };
 if (!in_array($module, $visibleModules, true)) {
     http_response_code(403);
@@ -51,7 +50,6 @@ if (!in_array($module, $visibleModules, true)) {
 $navigation = [
     'dashboard' => 'Dashboard',
     'users' => 'User Management',
-    'plants' => 'Plant Library',
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
@@ -65,7 +63,6 @@ $navigation = [
 $navigationIcons = [
     'dashboard' => 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z',
     'users' => 'M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
-    'plants' => 'M11 20A7 7 0 0 1 4 13c0-5 8-9 16-9 0 8-4 16-9 16z M8 16c2-3 5-5 9-7',
     'scans' => 'M4 8V5a1 1 0 0 1 1-1h3 M16 4h3a1 1 0 0 1 1 1v3 M20 16v3a1 1 0 0 1-1 1h-3 M8 20H5a1 1 0 0 1-1-1v-3 M8 12h8 M12 8v8',
     'health' => 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z M3 12h4l2-3 3 6 2-3h7',
     'garden' => 'M12 22v-8 M12 14c-4 0-7-2-7-6 4 0 7 2 7 6z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z',
@@ -167,23 +164,28 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                 <section class="metrics-grid live-metrics" aria-label="Live key metrics" data-dashboard-metrics>
                     <?php
                     $metrics = [
-                        ['total_users', 'Total registered users', 'mint'],
-                        ['active_users_30d', 'Active users · 30 days', 'blue'],
-                        ['verified_users', 'Verified users', 'lilac'],
-                        ['plant_scans', 'Plant scans', 'gold'],
-                        ['identified_plants', 'Identified plant names', 'mint'],
-                        ['garden_plants', 'Garden plants', 'blue'],
-                        ['premium_subscribers', 'Active premium subscribers', 'lilac'],
-                        ['pending_payments', 'Payments awaiting review', 'gold'],
-                        ['approved_payments', 'Approved payments', 'mint'],
-                        ['subscription_revenue_php', 'Recorded subscription revenue', 'blue'],
+                        ['total_users', 'Total registered users', 'mint', 'M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
+                        ['active_users_30d', 'Active users · 30 days', 'blue', 'M12 8v4l3 2M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6'],
+                        ['verified_users', 'Verified users', 'lilac', 'M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11ZM9 12l2 2 4-4'],
+                        ['plant_scans', 'Plant scans', 'gold', 'M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8M12 8v8'],
+                        ['identified_plants', 'Identified plant names', 'mint', 'M20 4c-8 0-14 3-14 9a5 5 0 0 0 5 5c6 0 9-6 9-14ZM4 21c3-5 6-8 11-11'],
+                        ['garden_plants', 'Garden plants', 'blue', 'M12 12V5M12 10c-4 0-6-2-6-5 4 0 6 2 6 5ZM12 8c0-3 2-5 6-5 0 3-2 5-6 5ZM5 13h14l-2 8H7l-2-8Z'],
+                        ['premium_subscribers', 'Active premium subscribers', 'lilac', 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z'],
+                        ['pending_payments', 'Payments awaiting review', 'gold', 'M6 3h12M6 21h12M8 3c0 4 4 5 4 9s-4 5-4 9M16 3c0 4-4 5-4 9s4 5 4 9'],
+                        ['approved_payments', 'Approved payments', 'mint', 'M5 4h14v16H5zM8 8h8M8 12h4M8 16l2 2 4-4'],
+                        ['subscription_revenue_php', 'Recorded subscription revenue', 'blue', 'M4 7c0-1.1 3.6-2 8-2s8 .9 8 2-3.6 2-8 2-8-.9-8-2ZM4 7v5c0 1.1 3.6 2 8 2M20 7v4M4 12v5c0 1.1 3.6 2 8 2M20 12v2M16 18h5M18.5 15.5v5'],
                     ];
-                    foreach ($metrics as [$key, $label, $tone]):
+                    foreach ($metrics as [$key, $label, $tone, $iconPath]):
                     ?>
                         <article class="metric-card">
                             <div class="metric-top">
                                 <span class="metric-label"><?= e($label) ?></span>
-                                <span class="metric-icon <?= e($tone) ?>" aria-hidden="true">✳</span>
+                                <span class="metric-icon <?= e($tone) ?>" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="<?= e($iconPath) ?>"></path>
+                                    </svg>
+                                </span>
                             </div>
                             <div class="metric-value" data-metric="<?= e($key) ?>">—</div>
                             <div class="metric-foot"><span>From Supabase records</span></div>
@@ -225,7 +227,7 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                          data-module-panel="<?= e($module) ?>"
                          data-feedback-region>
                     <div class="module-toolbar">
-                        <?php if (in_array($module, ['users', 'plants'], true)): ?>
+                        <?php if ($module === 'users'): ?>
                             <label class="search-control">
                                 <span class="sr-only">Search <?= e(strtolower($titles[$module])) ?></span>
                                 <input type="search" data-module-search placeholder="Search <?= e(strtolower($titles[$module])) ?>">
@@ -236,8 +238,6 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <?php if ($module === 'users'): ?>
                         <div class="table-scroll"><table><thead><tr><th>USER</th><th>EMAIL</th><th>REGISTERED</th><th>VERIFIED</th><th>PLAN</th><th>ACCOUNT</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div>
                         <div class="pagination-controls"><button type="button" data-page-prev>Previous</button><span data-page-label></span><button type="button" data-page-next>Next</button></div>
-                    <?php elseif ($module === 'plants'): ?>
-                        <div class="table-scroll"><table><thead><tr><th>SCIENTIFIC NAME</th><th>COMMON NAME</th><th>FAMILY</th><th>CARE REVIEWED</th><th>SOURCE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'scans'): ?>
                         <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>MATCH CONFIDENCE</th><th>MATCH</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'health'): ?>

@@ -379,28 +379,6 @@
         }
     }
 
-    async function loadPlants() {
-        const search = document.querySelector('[data-module-search]')?.value.trim() ?? '';
-        try {
-            const payload = await requestApi('plants.list', { data: { search, limit: 50 } });
-            setRows(payload.plants, 5, (plant) => {
-                const row = document.createElement('tr');
-                row.append(
-                    cell(plant.scientific_name),
-                    cell(plant.common_name),
-                    cell(plant.family),
-                    cell(plant.care?.reviewed ? 'Reviewed' : 'Unreviewed'),
-                    cell(plant.description_source ?? plant.care?.source_url)
-                );
-                return row;
-            });
-            setFeedback('Catalog records and source metadata are read-only in this view.');
-        } catch (error) {
-            setFeedback(error.message, true);
-            emptyRow(document.querySelector('[data-records]'), 5, error.message);
-        }
-    }
-
     function firstPlantSuggestion(result) {
         if (!result || typeof result !== 'object') return null;
         const suggestion =
@@ -719,16 +697,12 @@
     });
 
     const userSearch = document.querySelector('[data-module-search]');
-    if (moduleName === 'users' || moduleName === 'plants') {
+    if (moduleName === 'users') {
         userSearch?.addEventListener('input', () => {
             window.clearTimeout(userSearchTimer);
             userSearchTimer = window.setTimeout(() => {
-                if (moduleName === 'users') {
-                    userOffset = 0;
-                    loadUsers();
-                } else {
-                    loadPlants();
-                }
+                userOffset = 0;
+                loadUsers();
             }, 250);
         });
     }
@@ -801,9 +775,6 @@
             break;
         case 'users':
             loadUsers();
-            break;
-        case 'plants':
-            loadPlants();
             break;
         case 'scans':
             loadPlantRecords('scans.list', false);
