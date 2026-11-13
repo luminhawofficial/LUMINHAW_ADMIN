@@ -24,6 +24,7 @@ $titles = [
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
+    'plants' => 'Plant Library',
     'subscriptions' => 'Premium Subscriptions',
     'payments' => 'Payment Management',
     'announcements' => 'Announcements',
@@ -38,8 +39,7 @@ if (!isset($titles[$module])) {
 
 $role = $admin['role'];
 $visibleModules = match ($role) {
-    'super_admin' => array_keys($titles),
-    'admin' => ['dashboard', 'users', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
+    'admin' => array_keys($titles),
     default => ['dashboard', 'scans', 'health', 'reports'],
 };
 if (!in_array($module, $visibleModules, true)) {
@@ -53,6 +53,7 @@ $navigation = [
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
+    'plants' => 'Plant Library',
     'subscriptions' => 'Premium Subscriptions',
     'payments' => 'Payment Management',
     'announcements' => 'Announcements',
@@ -66,6 +67,7 @@ $navigationIcons = [
     'scans' => 'M4 8V5a1 1 0 0 1 1-1h3 M16 4h3a1 1 0 0 1 1 1v3 M20 16v3a1 1 0 0 1-1 1h-3 M8 20H5a1 1 0 0 1-1-1v-3 M8 12h8 M12 8v8',
     'health' => 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z M3 12h4l2-3 3 6 2-3h7',
     'garden' => 'M12 22v-8 M12 14c-4 0-7-2-7-6 4 0 7 2 7 6z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z',
+    'plants' => 'M20 4c-8 0-14 3-14 9a5 5 0 0 0 5 5c6 0 9-6 9-14ZM4 21c3-5 6-8 11-11',
     'subscriptions' => 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3z',
     'payments' => 'M3 6h18v12H3z M3 10h18 M7 15h3',
     'announcements' => 'M3 11v2a2 2 0 0 0 2 2h2l9 5V4l-9 5H5a2 2 0 0 0-2 2z M7 15l2 6h4l-3-5 M18 9a4 4 0 0 1 0 6',
@@ -84,7 +86,7 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#e8f5e6">
+    <meta name="theme-color" content="#F6F8F1">
     <meta name="csrf-token" content="<?= e($csrfToken) ?>">
     <title><?= e($titles[$module]) ?> · LUMINHAW Admin</title>
     <link rel="stylesheet" href="assets/css/admin.css">
@@ -244,10 +246,39 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                         <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'garden'): ?>
                         <div class="table-scroll"><table><thead><tr><th>PLANT</th><th>SCIENTIFIC NAME</th><th>OWNER</th><th>ADDED</th></tr></thead><tbody data-records></tbody></table></div>
+                    <?php elseif ($module === 'plants'): ?>
+                        <div class="notice-banner">Only administrators can add or edit library records. A source reference is required for every save; there is no delete action.</div>
+                        <div class="plant-library-toolbar">
+                            <label class="search-control"><span class="sr-only">Search plants by common, scientific, Tagalog, or Bisaya name</span><input type="search" data-plant-search placeholder="Search common, scientific, Tagalog, or Bisaya name"></label>
+                            <button class="primary-button" type="button" data-plant-add>Add plant</button>
+                        </div>
+                        <form class="plant-form" data-plant-form hidden>
+                            <div class="plant-form-heading"><h2 data-plant-form-title>Add plant</h2><button class="secondary-button" type="button" data-plant-cancel>Cancel</button></div>
+                            <label>Plant picture URL<input name="image_url" type="url" maxlength="2048" placeholder="https://…" autocomplete="url"></label>
+                            <label>Common name (English)<input name="common_name" maxlength="160" required></label>
+                            <label>Scientific name<input name="scientific_name" maxlength="200" required></label>
+                            <label>Tagalog name<input name="tagalog_name" maxlength="160"></label>
+                            <label>Bisaya name<input name="bisaya_name" maxlength="160"></label>
+                            <label class="plant-form-wide">Plant description<textarea name="description" rows="3"></textarea></label>
+                            <label>Water requirement<textarea name="water_requirement" rows="2"></textarea></label>
+                            <label>Sunlight requirement<textarea name="sunlight_requirement" rows="2"></textarea></label>
+                            <label>Soil type<textarea name="soil_requirement" rows="2"></textarea></label>
+                            <label>Fertilizer recommendation<textarea name="fertilizer" rows="2"></textarea></label>
+                            <label>Growth tips<textarea name="growth_tips" rows="2"></textarea></label>
+                            <label>Common diseases<textarea name="common_diseases" rows="2"></textarea></label>
+                            <label>Treatment<textarea name="treatment" rows="2"></textarea></label>
+                            <label>Toxicity<select name="toxicity"><option value="unknown">Unknown</option><option value="safe">Safe for pets and humans</option><option value="toxic_pets">Toxic to pets</option><option value="toxic_humans">Toxic to humans</option><option value="toxic_pets_humans">Toxic to pets and humans</option></select></label>
+                            <label>Date updated<input name="date_updated" type="date" required></label>
+                            <label class="plant-form-wide">Reference (required)<input name="reference" maxlength="2000" required placeholder="Organization, book, journal, or website URL"></label>
+                            <p class="module-note plant-form-wide">Include the source for every new or edited plant record. Users see this reference in the plant library.</p>
+                            <button class="primary-button" type="submit">Save plant</button>
+                        </form>
+                        <div class="table-scroll"><table><thead><tr><th>PICTURE</th><th>COMMON NAME</th><th>SCIENTIFIC NAME</th><th>TAGALOG</th><th>BISAYA</th><th>REFERENCE</th><th>UPDATED</th><th>ACTION</th></tr></thead><tbody data-plant-records><tr><td colspan="8">Loading plant library…</td></tr></tbody></table></div>
                     <?php elseif ($module === 'subscriptions'): ?>
+                        <div class="notice-banner">A payment awaiting manual review is not an active Premium subscription. The Admin verifies receipts in Payment Management; only confirmed payments activate Premium.</div>
                         <div class="table-scroll"><table><thead><tr><th>USER</th><th>PRODUCT</th><th>STATUS</th><th>EXPIRES</th><th>UPDATED</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'payments'): ?>
-                        <div class="notice-banner">Approval is only available to Super Admins. Each approval requires confirmation that the GCash transaction was received. The existing email-token review remains available.</div>
+                        <div class="notice-banner">The Admin can review payments. Approve only after confirming the GCash transaction in authorized merchant records. The existing email-token review remains available.</div>
                         <div class="table-scroll"><table><thead><tr><th>PAYMENT</th><th>USER</th><th>PLAN / AMOUNT</th><th>REFERENCE</th><th>RECEIPT</th><th>OCR REVIEW</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'announcements'): ?>
                         <form class="announcement-form" data-announcement-form>
@@ -263,9 +294,10 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <?php elseif ($module === 'admins'): ?>
                         <form class="role-form" data-role-form>
                             <label>Existing Auth user ID<input name="user_id" autocomplete="off" required placeholder="UUID of an existing account"></label>
-                            <label>Role<select name="role"><option value="admin">Admin</option><option value="moderator">Moderator</option><option value="super_admin">Super Admin</option></select></label>
+                            <label>Role<select name="role"><option value="admin">Admin</option><option value="moderator">Moderator</option></select></label>
                             <label>Status<select name="status"><option value="active">Active</option><option value="suspended">Suspended</option></select></label>
                             <button class="primary-button" type="submit">Save administrator role</button>
+                            <p class="module-note">There is one active Admin account. It cannot be demoted or suspended, and another active Admin cannot be added.</p>
                         </form>
                         <div class="table-scroll"><table><thead><tr><th>ADMIN</th><th>USER ID</th><th>ROLE</th><th>STATUS</th><th>ASSIGNED</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'reports'): ?>

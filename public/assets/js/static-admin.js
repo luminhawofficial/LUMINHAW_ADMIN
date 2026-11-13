@@ -7,6 +7,7 @@
         scans: 'AI Plant Identification',
         health: 'Plant Health Monitoring',
         garden: 'Garden Management',
+        plants: 'Plant Library',
         subscriptions: 'Premium Subscriptions',
         payments: 'Payment Management',
         announcements: 'Announcements',
@@ -15,8 +16,7 @@
         settings: 'System Settings',
     };
     const roleModules = {
-        super_admin: Object.keys(moduleLabels),
-        admin: ['dashboard', 'users', 'scans', 'health', 'garden', 'subscriptions', 'announcements', 'reports', 'settings'],
+        admin: Object.keys(moduleLabels),
         moderator: ['dashboard', 'scans', 'health', 'reports'],
     };
     const moduleContent = document.querySelector('#module-content');
@@ -38,6 +38,7 @@
     let dashboardSummary = null;
     let userOffset = 0;
     let userSearchTimer;
+    let plantSearchTimer;
     let adminClient = null;
     let authReady = Promise.resolve(false);
     let currentUser = null;
@@ -187,12 +188,14 @@
             user_status_update_failed: 'The account status was not changed.',
             plant_catalog_unavailable: 'Plant catalog data could not be loaded.',
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
+            plant_catalog_save_failed: 'The plant record was not saved.',
+            plant_reference_required: 'Add a reference before saving this plant.',
             payment_records_unavailable: 'Payment records could not be loaded.',
             payment_review_failed: 'The payment review was not completed.',
             invalid_announcement: 'Provide both dates and make sure expiry is after the start date.',
             private_receipt_unavailable: 'A private receipt could not be opened safely.',
             announcement_create_failed: 'The announcement was not saved.',
-            admin_role_assignment_failed: 'The administrator role was not changed. Check the target account and final Super Admin protection.',
+            admin_role_assignment_failed: 'The administrator role was not changed. Check the target account and single-Admin protection.',
             garden_records_unavailable: 'Garden records could not be loaded.',
             subscription_records_unavailable: 'Subscription records could not be loaded.',
             announcements_unavailable: 'Announcements could not be loaded.',
@@ -377,6 +380,18 @@
                 }, 250);
             });
         }
+        const plantSearch = moduleContent.querySelector('[data-plant-search]');
+        plantSearch?.addEventListener('input', () => {
+            window.clearTimeout(plantSearchTimer);
+            plantSearchTimer = window.setTimeout(() => loadPlantLibrary(plantSearch.value.trim()), 250);
+        });
+        moduleContent.querySelector('[data-plant-add]')?.addEventListener('click', () => showPlantForm());
+        moduleContent.querySelector('[data-plant-cancel]')?.addEventListener('click', () => {
+            const form = moduleContent.querySelector('[data-plant-form]');
+            form.reset();
+            form.hidden = true;
+        });
+        moduleContent.querySelector('[data-plant-form]')?.addEventListener('submit', savePlant);
         moduleContent.querySelector('[data-page-prev]')?.addEventListener('click', () => {
             userOffset = Math.max(0, userOffset - 25);
             loadUsers();
@@ -456,6 +471,9 @@
                 break;
             case 'garden':
                 loadGarden();
+                break;
+            case 'plants':
+                loadPlantLibrary();
                 break;
             case 'subscriptions':
                 loadSubscriptions();
@@ -624,8 +642,8 @@
                     {
                         label: 'Plant scans',
                         data: months.map((item) => Number(item.plant_scans) || 0),
-                        borderColor: '#07583e',
-                        backgroundColor: 'rgba(7, 88, 62, .08)',
+                        borderColor: '#087A61',
+                        backgroundColor: 'rgba(8, 122, 97, .08)',
                         borderWidth: 2,
                         pointRadius: 2,
                         tension: .35,
@@ -634,7 +652,7 @@
                     {
                         label: 'New users',
                         data: months.map((item) => Number(item.new_users) || 0),
-                        borderColor: '#82ae8c',
+                        borderColor: '#A9CBA5',
                         borderWidth: 2,
                         pointRadius: 2,
                         borderDash: [4, 4],
@@ -875,21 +893,165 @@
         }
     }
 
+    async function loadPlantLibrary(search = '') {
+        try {
+            const payload = await requestApi('plant_catalog.list', {
+                data: search ? { search } : {},
+            });
+            renderPlantLibrary(payload.plants ?? payload.records ?? []);
+            setFeedback(search
+                ? `Plant library search results for “${search}”.`
+                : 'Plant library records are ready to view or edit.');
+        } catch (error) {
+            setFeedback(error.message, true);
+            const records = document.querySelector('[data-plant-records]');
+            if (records) emptyRow(records, 8, error.message);
+        }
+    }
+
+    function renderPlantLibrary(plants) {
+        const records = document.querySelector('[data-plant-records]');
+        if (!records) return;
+        if (!Array.isArray(plants) || plants.length === 0) {
+            emptyRow(records, 8, 'No matching plants.');
+            return;
+        }
+        records.replaceChildren(...plants.map((plant) => {
+            const row = document.createElement('tr');
+            const imageCell = document.createElement('td');
+            addImage(imageCell, plant.image_url);
+            const actionCell = document.createElement('td');
+            const editButton = createElement('button', 'secondary-button compact-button', 'Edit');
+            editButton.type = 'button';
+            editButton.addEventListener('click', () => showPlantForm(plant));
+            actionCell.append(editButton);
+            row.append(
+                imageCell,
+                cell(plant.common_name),
+                cell(plant.scientific_name),
+                cell(plant.tagalog_name),
+                cell(plant.bisaya_name),
+                cell(plant.reference),
+                cell(formatDate(plant.date_updated ?? plant.updated_at)),
+                actionCell
+            );
+            return row;
+        }));
+    }
+
+    function showPlantForm(plant = null) {
+        const form = moduleContent.querySelector('[data-plant-form]');
+        if (!form) return;
+        form.reset();
+        form.hidden = false;
+        form.dataset.plantId = plant?.id ?? '';
+        moduleContent.querySelector('[data-plant-form-title]').textContent = plant
+            ? `Edit ${plant.common_name ?? 'plant'}`
+            : 'Add plant';
+        for (const [name, value] of Object.entries(plant ?? {})) {
+            const field = form.elements.namedItem(name);
+            if (field && typeof value === 'string') field.value = value;
+        }
+        const dateField = form.elements.namedItem('date_updated');
+        dateField.value = plant?.date_updated ?? plant?.updated_at?.slice(0, 10) ?? localDateValue();
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        form.elements.namedItem('common_name').focus();
+    }
+
+    async function savePlant(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const values = Object.fromEntries(new FormData(form).entries());
+        for (const [key, value] of Object.entries(values)) {
+            values[key] = String(value).trim();
+        }
+        if (!values.reference) {
+            showToast(errorMessage('plant_reference_required'));
+            form.elements.namedItem('reference').focus();
+            return;
+        }
+
+        const isEdit = form.dataset.plantId !== '';
+        const action = isEdit ? 'plant_catalog.update' : 'plant_catalog.create';
+        const submitButton = form.querySelector('[type="submit"]');
+        submitButton.disabled = true;
+        try {
+            await requestApi(action, {
+                data: {
+                    ...values,
+                    ...(isEdit ? { id: form.dataset.plantId } : {}),
+                },
+            });
+            form.reset();
+            form.hidden = true;
+            showToast(isEdit ? 'Plant information updated.' : 'Plant added to the library.');
+            await loadPlantLibrary(moduleContent.querySelector('[data-plant-search]').value.trim());
+        } catch (error) {
+            showToast(error.message);
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    function localDateValue(date = new Date()) {
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+            .toISOString()
+            .slice(0, 10);
+    }
+
     async function loadSubscriptions() {
         try {
             const payload = await requestApi('subscriptions.list');
-            setRows(payload.subscriptions, 5, (subscription) => {
+            const rows = payload.subscriptions.map((subscription) => ({
+                user: subscription.user_id,
+                product: subscription.product_id,
+                status: subscription.status,
+                expiresAt: subscription.expires_at,
+                updatedAt: subscription.updated_at,
+            }));
+            const renderRow = (subscription) => {
                 const row = document.createElement('tr');
                 row.append(
-                    cell(subscription.user_id),
-                    cell(subscription.product_id),
+                    cell(subscription.user),
+                    cell(subscription.product),
                     statusBadge(subscription.status),
-                    cell(formatDate(subscription.expires_at)),
-                    cell(formatDate(subscription.updated_at))
+                    cell(formatDate(subscription.expiresAt)),
+                    cell(formatDate(subscription.updatedAt))
                 );
                 return row;
-            });
-            setFeedback('Entitlements are read-only; client submissions cannot grant Premium.');
+            };
+
+            if (role === 'admin') {
+                try {
+                    const paymentPayload = await requestApi('payments.list');
+                    paymentPayload.payments
+                        .filter((payment) => payment.payment_status === 'under_review')
+                        .forEach((payment) => {
+                            const plan = Array.isArray(payment.payment_plans)
+                                ? payment.payment_plans[0]
+                                : payment.payment_plans;
+                            rows.push({
+                                user: payment.profile?.display_name
+                                    || payment.customer_full_name
+                                    || payment.customer_email
+                                    || payment.user_id,
+                                product: plan?.name ?? plan?.product_id ?? 'Premium plan',
+                                status: 'under_review',
+                                expiresAt: null,
+                                updatedAt: payment.updated_at ?? payment.created_at,
+                            });
+                        });
+                } catch (error) {
+                    setRows(rows, 5, renderRow);
+                    setFeedback(`Subscriptions loaded, but payment review status could not be loaded: ${error.message}`, true);
+                    return;
+                }
+            }
+
+            setRows(rows, 5, renderRow);
+            setFeedback(role === 'admin'
+                ? 'Pending manual payment reviews appear here but are not active Premium entitlements. Admins must confirm receipt in Payment Management to activate Premium.'
+                : 'Entitlements are read-only; client submissions cannot grant Premium.');
         } catch (error) {
             setFeedback(error.message, true);
             emptyRow(document.querySelector('[data-records]'), 5, error.message);
@@ -923,20 +1085,20 @@
                 }
                 row.append(receiptCell, cell(payment.ocr_status ?? '—'), statusBadge(payment.payment_status));
                 const actionCell = document.createElement('td');
-                if (payment.payment_status === 'under_review' && role === 'super_admin') {
+                if (payment.payment_status === 'under_review' && role === 'admin') {
                     actionCell.append(
                         reviewButton(payment, 'approve'),
                         reviewButton(payment, 'reject')
                     );
                 } else {
                     actionCell.textContent = payment.payment_status === 'under_review'
-                        ? 'Awaiting Super Admin'
+                        ? 'Awaiting Admin'
                         : '—';
                 }
                 row.append(actionCell);
                 return row;
             });
-            setFeedback('Review actions require a Super Admin and are audited. Email-token review remains available.');
+            setFeedback('Admin payment reviews are audited. Verify receipt details against authorized GCash records before approval.');
         } catch (error) {
             setFeedback(error.message, true);
             emptyRow(document.querySelector('[data-records]'), 8, error.message);
@@ -974,15 +1136,15 @@
                 if (!approve) {
                     showToast(`Payment rejected. Customer email status: ${deliveryStatus}.`);
                 } else if (deliveryStatus === 'sent') {
-                    showToast('Payment approved. Confirmation email sent to the customer.');
+                    showToast('Payment approved and Premium activated. Confirmation email sent to the customer.');
                 } else if (deliveryStatus === 'failed') {
-                    showToast('Payment approved, but the confirmation email was not sent. Check email delivery configuration.');
+                    showToast('Payment approved and Premium activated. The confirmation email was not sent. Check email delivery configuration.');
                 } else if (deliveryStatus === 'not_configured') {
-                    showToast('Payment approved, but no customer confirmation email was configured.');
+                    showToast('Payment approved and Premium activated, but no customer confirmation email was configured.');
                 } else if (deliveryStatus === 'processing') {
-                    showToast('Payment approved. The confirmation email is still processing.');
+                    showToast('Payment approved and Premium activated. The confirmation email is still processing.');
                 } else {
-                    showToast('Payment approved, but confirmation email delivery could not be confirmed.');
+                    showToast('Payment approved and Premium activated, but confirmation email delivery could not be confirmed.');
                 }
                 await loadPayments();
             } catch (error) {
@@ -1027,7 +1189,7 @@
                 );
                 return row;
             });
-            setFeedback('Only a Super Admin can assign roles; the final active Super Admin is protected.');
+            setFeedback('The Admin can manage moderator roles. The single active Admin account is protected.');
         } catch (error) {
             setFeedback(error.message, true);
             emptyRow(document.querySelector('[data-records]'), 5, error.message);

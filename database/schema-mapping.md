@@ -22,29 +22,28 @@ state and settings still need to be verified before deployment.
 | Payments | `public.payment_plans`, `public.premium_payment_requests`, `public.premium_payment_events`, `public.payment_gateway_events`, `public.payment_admins` | Payment requests link to Auth users and plans and retain status, amount, reference, receipt path, review details, and timestamps. Private receipt objects are stored outside public access. Service-role access is required for administrative data. |
 | Payment email review | `public.payment_email_notifications`, `public.payment_email_action_tokens`, `public.payment_email_action_rate_limits` | Approval/rejection uses expiring, one-use email action tokens restricted to the configured reviewer mailbox. Approval requires explicit confirmation that funds were received; the database transaction records the decision and grants/extends the entitlement. Tokens and notification rows are not readable by browser roles. |
 | Announcements | `public.system_announcements` | Database-backed announcements have title, body, category, publish/expiry times, and active state. The app can read published announcements. No audience-targeted push delivery or delivery receipt workflow was found. |
-| Administration | `public.payment_admins` only | No general administrator role table or general admin audit log was found. `payment_admins` is not a substitute for Super Admin/Admin/Moderator authorization. |
+| Administration | `public.admin_roles`, `public.admin_activity_logs` | At most one active Admin is enforced by SQL and manages administrator roles through the guarded `admin-api`; a fresh local roster remains empty until an Admin is bootstrapped. Moderators have limited access. |
 
 Important migrations include `20261027060000_luminhaw_schema.sql`,
 `20261027100000_security_controls.sql`, `202610290001_plants.sql`,
 `20261030120000_manual_premium_payments.sql`,
 `20261106210000_gcash_receipt_review.sql`,
 `20261106230000_email_payment_approval_and_strict_receipts.sql`, and
-`20261110100000_system_announcements.sql`.
+`20261110100000_system_announcements.sql`,
+`20261110220000_admin_dashboard_foundation.sql`,
+`20261113000000_admin_payment_review_admin_role.sql`, and
+`20261113010000_remove_super_admin_role.sql`.
 
 ## Payment workflow must be preserved
 
-The latest local migration intentionally makes
-`review_premium_payment(...)` fail and revokes its execution. The active
-`review_premium_payment_by_email_token(...)` flow is the authorized review
-path. It consumes the token, records reviewer email and decision, and only
-then activates Premium. The dashboard must not update payment status or
-entitlements directly.
-
-The submitted feature brief asks for dashboard-based payment approval, which
-would be a change to this existing authorization model. Until that is
-explicitly resolved, the safe implementation is to show payment status and
-review history without dashboard approval/rejection actions; the existing
-email review remains authoritative.
+The legacy `review_premium_payment(...)` function remains disabled. The
+email-token review flow remains available. Dashboard payment review and
+administrator management belong to the single active `admin` account;
+moderators do not have these capabilities. The dashboard calls the guarded
+`admin_review_premium_payment(...)` function through `admin-api`, and the
+database transaction activates Premium only after the Admin confirms receipt.
+Client code cannot update payment status or entitlements directly. The role
+change is local until the matching Edge Function and migration are deployed.
 
 There is also a pricing mismatch: the brief says PHP 599 per year, while the
 latest local migration `20261110120000_update_yearly_premium_price.sql` sets
@@ -52,8 +51,12 @@ the 365-day plan to PHP 499. Do not change prices without confirmation.
 
 ## Requirements not represented in the current schema
 
-- General admin roles, role assignment, and admin activity audit records.
 - Admin-reviewed catalog edits / verification history.
+- The requested Tagalog/Bisaya names, expanded care and toxicity fields, date
+  updated, and mandatory references need a compatible catalog schema and
+  admin-only `admin-api` actions. The deployed Edge Function is not present in
+  this repository; do not write to the service-role-only catalog from a
+  browser client.
 - User-targeted notification campaigns, push-delivery status, and schedules.
 - Dedicated subscription history beyond payment requests and current
   entitlements.
@@ -70,9 +73,9 @@ use restrictive RLS, and be tested locally before rollout.
 
 1. **Inspection and mapping — complete locally.** Confirm the Flutter source,
    migration history, data ownership, and existing payment review workflow.
-2. **Foundation — pending.** Add Supabase Auth login, server-side role checks,
-   secure PHP sessions, CSRF protection, and an explicitly bootstrapped first
-   Super Admin. Never put service-role credentials in browser code.
+2. **Foundation — complete locally.** Supabase Auth login, server-side role
+   checks, secure PHP sessions, CSRF protection, and a single active Admin are
+   implemented. Never put service-role credentials in browser code.
 3. **Live dashboard — pending.** Replace sample figures only where real
    authorized queries and time-series data exist; show unavailable states for
    unsupported metrics.

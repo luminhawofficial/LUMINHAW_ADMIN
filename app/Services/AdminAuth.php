@@ -145,7 +145,7 @@ final class AdminAuth
         }
 
         if (($context['user_id'] ?? null) !== $_SESSION['user_id']
-            || !in_array($context['role'] ?? null, ['super_admin', 'admin', 'moderator'], true)
+            || !in_array($context['role'] ?? null, ['admin', 'moderator'], true)
         ) {
             throw new AdminAccessException('This account does not have active administrator access.', 403);
         }

@@ -122,12 +122,19 @@ final class SupabaseClient
         }
 
         if ($status < 200 || $status >= 300) {
+            $nestedError = is_array($response['error'] ?? null)
+                ? $response['error']
+                : [];
             $errorCode = $response['error_code']
                 ?? $response['code']
-                ?? $response['error']
+                ?? $nestedError['code']
+                ?? (is_string($response['error'] ?? null)
+                    ? $response['error']
+                    : null)
                 ?? 'supabase_request_failed';
             $message = $response['msg']
                 ?? $response['message']
+                ?? $nestedError['message']
                 ?? 'The Supabase request was rejected.';
             throw new SupabaseException(
                 is_string($message) ? $message : 'The Supabase request was rejected.',

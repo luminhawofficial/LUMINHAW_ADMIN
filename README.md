@@ -30,6 +30,25 @@ https://luminhawofficial.github.io/LUMINHAW_ADMIN/**
 
 The browser app stores its Supabase session in tab-scoped `sessionStorage`, refreshes tokens through Supabase Auth, checks the active administrator role through `admin-api`, and expires inactive sessions client-side. The Edge Function must continue to verify roles for every request; hiding a menu item is not an authorization boundary.
 
+## Plant library management
+
+The admin clients expose the Plant Library only to the `admin` role. They use
+the existing `admin-api` Edge Function actions `plant_catalog.list`
+(`search` matches common, scientific, Tagalog, and Bisaya names),
+`plant_catalog.create`, and `plant_catalog.update`. The list response is
+`{ "plants": [...] }`; plant records use `image_url`, `common_name`,
+`scientific_name`, `tagalog_name`, `bisaya_name`, `description`,
+`water_requirement`, `sunlight_requirement`, `soil_requirement`, `fertilizer`,
+`growth_tips`, `common_diseases`, `treatment`, `toxicity`, `date_updated`, and
+`reference`.
+
+The Edge Function is not part of this repository. Before deploying the UI,
+implement these actions there and enforce admin-only create/update access and
+non-empty references server-side. The existing catalog tables are service-role
+only, so browser clients must not write directly to Supabase. The user-facing
+library belongs to the LUMINHAW app and should expose catalog data read-only,
+including each record's reference.
+
 ## Existing PHP app
 
 The original PHP authentication system remains in `public/login.php`, `public/index.php`, `public/api.php`, and `public/logout.php`, with shared services in `app/`. The PHP app uses Supabase Auth and the same `admin-api` Edge Function. It is not executed by GitHub Pages.

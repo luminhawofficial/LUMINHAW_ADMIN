@@ -69,7 +69,7 @@ $csrfToken = $adminAuth->csrfToken();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#e8f5e6">
+    <meta name="theme-color" content="#F6F8F1">
     <title>Administrator sign in · LUMINHAW</title>
     <link rel="stylesheet" href="assets/css/admin.css">
 </head>
