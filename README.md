@@ -65,7 +65,10 @@ implement these actions there and enforce admin-only create/update access and
 per-populated-field references server-side. The existing catalog tables are
 service-role only, so browser clients must not write directly to Supabase. The
 user-facing library belongs to the LUMINHAW app and should expose the reference
-alongside the corresponding fact.
+alongside the corresponding fact. If the admin app reports
+`unsupported_admin_action`, the deployed `admin-api` function has not yet been
+updated to support the plant-catalog actions; deploy the function changes
+before using the Plant Library.
 
 ## Existing PHP app
 

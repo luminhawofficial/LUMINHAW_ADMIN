@@ -98,6 +98,7 @@
             plant_catalog_unavailable: 'Plant catalog data could not be loaded.',
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
             plant_catalog_save_failed: 'The plant record was not saved.',
+            unsupported_admin_action: 'The deployed admin API does not support this action yet. Deploy an admin-api version that includes the requested action.',
             plant_reference_required: 'Add at least one source for every populated plant fact.',
             payment_records_unavailable: 'Payment records could not be loaded.',
             payment_review_failed: 'The payment review was not completed.',
