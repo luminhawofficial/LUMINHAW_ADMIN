@@ -744,6 +744,23 @@ td { border-bottom-color: #eef2ea; color: #425f50; }
 }
 .plant-form-heading h2 { margin: 0; color: var(--ink); font-size: 16px; }
 .plant-form .module-note { margin: 0; }
+.plant-reference-field {
+    margin-top: -6px;
+    color: #52705d;
+    font-size: 10px;
+    font-weight: 600;
+}
+.plant-form .plant-reference-input {
+    min-height: 54px;
+    font-size: 11px;
+}
+.plant-reference-entry {
+    margin: 0 0 7px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.plant-reference-entry:last-child { margin-bottom: 0; }
+.plant-reference-entry strong { color: var(--ink); }
 .plant-form button[type="submit"] { justify-self: start; }
 .plant-form input:focus-visible, .plant-form textarea:focus-visible,
 .plant-form select:focus-visible, .plant-library-toolbar input:focus-visible {

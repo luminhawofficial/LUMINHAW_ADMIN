@@ -19,6 +19,22 @@
         admin: Object.keys(moduleLabels),
         moderator: ['dashboard', 'scans', 'health', 'reports'],
     };
+    const plantFactLabels = {
+        image_url: 'Plant picture',
+        common_name: 'Common name',
+        scientific_name: 'Scientific name',
+        tagalog_name: 'Tagalog name',
+        bisaya_name: 'Bisaya name',
+        description: 'Plant description',
+        water_requirement: 'Water requirement',
+        sunlight_requirement: 'Sunlight requirement',
+        soil_requirement: 'Soil type',
+        fertilizer: 'Fertilizer recommendation',
+        growth_tips: 'Growth tips',
+        common_diseases: 'Common diseases',
+        treatment: 'Treatment',
+        toxicity: 'Toxicity',
+    };
     const moduleContent = document.querySelector('#module-content');
     const loginView = document.querySelector('#login-view');
     const appShell = document.querySelector('#app-shell');
@@ -189,7 +205,7 @@
             plant_catalog_unavailable: 'Plant catalog data could not be loaded.',
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
             plant_catalog_save_failed: 'The plant record was not saved.',
-            plant_reference_required: 'Add a reference before saving this plant.',
+            plant_reference_required: 'Add at least one source for every populated plant fact.',
             payment_records_unavailable: 'Payment records could not be loaded.',
             payment_review_failed: 'The payment review was not completed.',
             invalid_announcement: 'Provide both dates and make sure expiry is after the start date.',
@@ -391,7 +407,13 @@
             form.reset();
             form.hidden = true;
         });
-        moduleContent.querySelector('[data-plant-form]')?.addEventListener('submit', savePlant);
+        const plantForm = moduleContent.querySelector('[data-plant-form]');
+        if (plantForm) {
+            initializePlantReferences(plantForm);
+            plantForm.addEventListener('input', () => syncPlantReferenceRequirements(plantForm));
+            plantForm.addEventListener('change', () => syncPlantReferenceRequirements(plantForm));
+            plantForm.addEventListener('submit', savePlant);
+        }
         moduleContent.querySelector('[data-page-prev]')?.addEventListener('click', () => {
             userOffset = Math.max(0, userOffset - 25);
             loadUsers();
@@ -920,6 +942,8 @@
             const row = document.createElement('tr');
             const imageCell = document.createElement('td');
             addImage(imageCell, plant.image_url);
+            const referencesCell = document.createElement('td');
+            renderPlantReferences(referencesCell, plant.field_references, plant.reference);
             const actionCell = document.createElement('td');
             const editButton = createElement('button', 'secondary-button compact-button', 'Edit');
             editButton.type = 'button';
@@ -931,7 +955,7 @@
                 cell(plant.scientific_name),
                 cell(plant.tagalog_name),
                 cell(plant.bisaya_name),
-                cell(plant.reference),
+                referencesCell,
                 cell(formatDate(plant.date_updated ?? plant.updated_at)),
                 actionCell
             );
@@ -945,6 +969,7 @@
         form.reset();
         form.hidden = false;
         form.dataset.plantId = plant?.id ?? '';
+        syncPlantReferenceRequirements(form);
         moduleContent.querySelector('[data-plant-form-title]').textContent = plant
             ? `Edit ${plant.common_name ?? 'plant'}`
             : 'Add plant';
@@ -952,10 +977,79 @@
             const field = form.elements.namedItem(name);
             if (field && typeof value === 'string') field.value = value;
         }
+        for (const [name, references] of Object.entries(plant?.field_references ?? {})) {
+            const field = form.querySelector(`[data-plant-reference-for="${name}"]`);
+            if (field) {
+                field.value = Array.isArray(references)
+                    ? references.filter((item) => typeof item === 'string').join('\n')
+                    : typeof references === 'string' ? references : '';
+            }
+        }
         const dateField = form.elements.namedItem('date_updated');
         dateField.value = plant?.date_updated ?? plant?.updated_at?.slice(0, 10) ?? localDateValue();
+        syncPlantReferenceRequirements(form);
         form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         form.elements.namedItem('common_name').focus();
+    }
+
+    function initializePlantReferences(form) {
+        form.querySelectorAll('[data-plant-fact]').forEach((field) => {
+            const factName = field.dataset.plantFact;
+            const label = document.createElement('label');
+            label.className = 'plant-reference-field';
+            label.htmlFor = `plant-reference-${factName}`;
+            label.textContent = `Reference(s) for ${plantFactLabels[factName]}`;
+            const references = document.createElement('textarea');
+            references.className = 'plant-reference-input';
+            references.name = `${factName}_references_input`;
+            references.id = label.htmlFor;
+            references.dataset.plantReferenceFor = factName;
+            references.rows = 2;
+            references.maxLength = 4000;
+            references.placeholder = 'Enter one source per line';
+            label.append(references);
+            label.classList.toggle('plant-form-wide', field.closest('label').classList.contains('plant-form-wide'));
+            field.closest('label').after(label);
+        });
+        syncPlantReferenceRequirements(form);
+    }
+
+    function syncPlantReferenceRequirements(form) {
+        form.querySelectorAll('[data-plant-fact]').forEach((field) => {
+            const references = form.querySelector(`[data-plant-reference-for="${field.dataset.plantFact}"]`);
+            if (!references) return;
+            const hasValue = field.name === 'toxicity'
+                ? field.value !== 'unknown'
+                : field.value.trim() !== '';
+            references.required = field.required || hasValue;
+        });
+    }
+
+    function renderPlantReferences(cell, fieldReferences, legacyReference) {
+        const entries = fieldReferences && typeof fieldReferences === 'object'
+            ? Object.entries(fieldReferences)
+            : [];
+        const renderedEntries = entries.filter(([, references]) =>
+            (Array.isArray(references) && references.length > 0) ||
+            (typeof references === 'string' && references.trim() !== '')
+        );
+        if (renderedEntries.length === 0) {
+            cell.textContent = typeof legacyReference === 'string' && legacyReference.trim()
+                ? `Legacy record reference: ${legacyReference}`
+                : '—';
+            return;
+        }
+        renderedEntries.forEach(([fieldName, references]) => {
+            const sources = Array.isArray(references)
+                ? references.filter((item) => typeof item === 'string' && item.trim())
+                : [references];
+            const entry = createElement('div', 'plant-reference-entry');
+            entry.append(
+                createElement('strong', '', `${plantFactLabels[fieldName] ?? fieldName}: `),
+                document.createTextNode(sources.join('; '))
+            );
+            cell.append(entry);
+        });
     }
 
     async function savePlant(event) {
@@ -965,11 +1059,28 @@
         for (const [key, value] of Object.entries(values)) {
             values[key] = String(value).trim();
         }
-        if (!values.reference) {
-            showToast(errorMessage('plant_reference_required'));
-            form.elements.namedItem('reference').focus();
-            return;
+        const fieldReferences = {};
+        for (const field of form.querySelectorAll('[data-plant-fact]')) {
+            const referencesInput = form.querySelector(
+                `[data-plant-reference-for="${field.dataset.plantFact}"]`
+            );
+            const references = referencesInput.value
+                .split(/\r?\n/)
+                .map((reference) => reference.trim())
+                .filter(Boolean);
+            const hasValue = field.name === 'toxicity'
+                ? field.value !== 'unknown'
+                : field.value.trim() !== '';
+            delete values[referencesInput.name];
+            if (!hasValue) continue;
+            if (references.length === 0) {
+                showToast(`${errorMessage('plant_reference_required')} Missing source for ${plantFactLabels[field.dataset.plantFact]}.`);
+                referencesInput.focus();
+                return;
+            }
+            fieldReferences[field.name] = references;
         }
+        values.field_references = fieldReferences;
 
         const isEdit = form.dataset.plantId !== '';
         const action = isEdit ? 'plant_catalog.update' : 'plant_catalog.create';

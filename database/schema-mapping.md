@@ -53,10 +53,12 @@ the 365-day plan to PHP 499. Do not change prices without confirmation.
 
 - Admin-reviewed catalog edits / verification history.
 - The requested Tagalog/Bisaya names, expanded care and toxicity fields, date
-  updated, and mandatory references need a compatible catalog schema and
-  admin-only `admin-api` actions. The deployed Edge Function is not present in
-  this repository; do not write to the service-role-only catalog from a
-  browser client.
+  updated, and field-level mandatory references need a compatible catalog
+  schema and admin-only `admin-api` actions. Store `field_references` as a
+  mapping from each populated fact field to one or more source strings; validate
+  the mapping server-side. The deployed Edge Function is not present in this
+  repository; do not write to the service-role-only catalog from a browser
+  client.
 - User-targeted notification campaigns, push-delivery status, and schedules.
 - Dedicated subscription history beyond payment requests and current
   entitlements.

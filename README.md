@@ -40,14 +40,32 @@ the existing `admin-api` Edge Function actions `plant_catalog.list`
 `scientific_name`, `tagalog_name`, `bisaya_name`, `description`,
 `water_requirement`, `sunlight_requirement`, `soil_requirement`, `fertilizer`,
 `growth_tips`, `common_diseases`, `treatment`, `toxicity`, `date_updated`, and
-`reference`.
+`field_references`. `field_references` maps each populated fact's field name
+to an array of one or more source strings, for example:
+
+```json
+{
+  "common_name": ["Department of Agriculture (Philippines)"],
+  "scientific_name": [
+    "Flora of the Philippines",
+    "https://example.org/plant-entry"
+  ],
+  "description": ["University of the Philippines Los Baños (UPLB)"]
+}
+```
+
+The admin form requires at least one source for every populated fact,
+including the plant picture and a selected toxicity value. It allows several
+sources per fact. Date updated is record metadata and does not require a
+citation. Legacy record-level `reference` values are shown for existing data
+but are not treated as proof for individual facts.
 
 The Edge Function is not part of this repository. Before deploying the UI,
 implement these actions there and enforce admin-only create/update access and
-non-empty references server-side. The existing catalog tables are service-role
-only, so browser clients must not write directly to Supabase. The user-facing
-library belongs to the LUMINHAW app and should expose catalog data read-only,
-including each record's reference.
+per-populated-field references server-side. The existing catalog tables are
+service-role only, so browser clients must not write directly to Supabase. The
+user-facing library belongs to the LUMINHAW app and should expose the reference
+alongside the corresponding fact.
 
 ## Existing PHP app
 

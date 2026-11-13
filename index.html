@@ -128,26 +128,25 @@
         </div>
         <form class="plant-form" data-plant-form hidden>
             <div class="plant-form-heading"><h2 data-plant-form-title>Add plant</h2><button class="secondary-button" type="button" data-plant-cancel>Cancel</button></div>
-            <label>Plant picture URL<input name="image_url" type="url" maxlength="2048" placeholder="https://…" autocomplete="url"></label>
-            <label>Common name (English)<input name="common_name" maxlength="160" required></label>
-            <label>Scientific name<input name="scientific_name" maxlength="200" required></label>
-            <label>Tagalog name<input name="tagalog_name" maxlength="160"></label>
-            <label>Bisaya name<input name="bisaya_name" maxlength="160"></label>
-            <label class="plant-form-wide">Plant description<textarea name="description" rows="3"></textarea></label>
-            <label>Water requirement<textarea name="water_requirement" rows="2"></textarea></label>
-            <label>Sunlight requirement<textarea name="sunlight_requirement" rows="2"></textarea></label>
-            <label>Soil type<textarea name="soil_requirement" rows="2"></textarea></label>
-            <label>Fertilizer recommendation<textarea name="fertilizer" rows="2"></textarea></label>
-            <label>Growth tips<textarea name="growth_tips" rows="2"></textarea></label>
-            <label>Common diseases<textarea name="common_diseases" rows="2"></textarea></label>
-            <label>Treatment<textarea name="treatment" rows="2"></textarea></label>
-            <label>Toxicity<select name="toxicity"><option value="unknown">Unknown</option><option value="safe">Safe for pets and humans</option><option value="toxic_pets">Toxic to pets</option><option value="toxic_humans">Toxic to humans</option><option value="toxic_pets_humans">Toxic to pets and humans</option></select></label>
+            <label>Plant picture URL<input name="image_url" data-plant-fact="image_url" type="url" maxlength="2048" placeholder="https://…" autocomplete="url"></label>
+            <label>Common name (English)<input name="common_name" data-plant-fact="common_name" maxlength="160" required></label>
+            <label>Scientific name<input name="scientific_name" data-plant-fact="scientific_name" maxlength="200" required></label>
+            <label>Tagalog name<input name="tagalog_name" data-plant-fact="tagalog_name" maxlength="160"></label>
+            <label>Bisaya name<input name="bisaya_name" data-plant-fact="bisaya_name" maxlength="160"></label>
+            <label class="plant-form-wide">Plant description<textarea name="description" data-plant-fact="description" rows="3"></textarea></label>
+            <label>Water requirement<textarea name="water_requirement" data-plant-fact="water_requirement" rows="2"></textarea></label>
+            <label>Sunlight requirement<textarea name="sunlight_requirement" data-plant-fact="sunlight_requirement" rows="2"></textarea></label>
+            <label>Soil type<textarea name="soil_requirement" data-plant-fact="soil_requirement" rows="2"></textarea></label>
+            <label>Fertilizer recommendation<textarea name="fertilizer" data-plant-fact="fertilizer" rows="2"></textarea></label>
+            <label>Growth tips<textarea name="growth_tips" data-plant-fact="growth_tips" rows="2"></textarea></label>
+            <label>Common diseases<textarea name="common_diseases" data-plant-fact="common_diseases" rows="2"></textarea></label>
+            <label>Treatment<textarea name="treatment" data-plant-fact="treatment" rows="2"></textarea></label>
+            <label>Toxicity<select name="toxicity" data-plant-fact="toxicity"><option value="unknown">Unknown</option><option value="safe">Safe for pets and humans</option><option value="toxic_pets">Toxic to pets</option><option value="toxic_humans">Toxic to humans</option><option value="toxic_pets_humans">Toxic to pets and humans</option></select></label>
             <label>Date updated<input name="date_updated" type="date" required></label>
-            <label class="plant-form-wide">Reference (required)<input name="reference" maxlength="2000" required placeholder="Organization, book, journal, or website URL"></label>
-            <p class="module-note plant-form-wide">Include the source for every new or edited plant record. Users see this reference in the plant library.</p>
+            <p class="module-note plant-form-wide">Every populated fact requires its own reference. Enter one source per line; a fact can have multiple references. If a source supports multiple facts, add it to each relevant fact.</p>
             <button class="primary-button" type="submit">Save plant</button>
         </form>
-        <div class="table-scroll"><table><thead><tr><th>PICTURE</th><th>COMMON NAME</th><th>SCIENTIFIC NAME</th><th>TAGALOG</th><th>BISAYA</th><th>REFERENCE</th><th>UPDATED</th><th>ACTION</th></tr></thead><tbody data-plant-records><tr><td colspan="8">Loading plant library…</td></tr></tbody></table></div>
+        <div class="table-scroll"><table><thead><tr><th>PICTURE</th><th>COMMON NAME</th><th>SCIENTIFIC NAME</th><th>TAGALOG</th><th>BISAYA</th><th>FIELD REFERENCES</th><th>UPDATED</th><th>ACTION</th></tr></thead><tbody data-plant-records><tr><td colspan="8">Loading plant library…</td></tr></tbody></table></div>
     </section>
 </template>
 <template id="module-subscriptions">
