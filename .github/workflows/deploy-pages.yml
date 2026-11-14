@@ -37,9 +37,13 @@ jobs:
           const fs = require('node:fs');
           const url = process.env.SUPABASE_URL;
           const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+          const buildId = process.env.GITHUB_SHA;
 
           if (!url || !key) {
             throw new Error('Set the SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY repository variables before deploying.');
+          }
+          if (!/^[0-9a-f]{40}$/i.test(buildId || '')) {
+            throw new Error('GitHub Actions did not provide a valid build identifier.');
           }
           if (!/^https:\/\/[^/]+$/.test(url)) {
             throw new Error('SUPABASE_URL must be an HTTPS project origin.');
@@ -56,6 +60,20 @@ jobs:
               throw new Error('Only a Supabase publishable or legacy anon key is allowed in the static app.');
             }
           }
+
+          let html = fs.readFileSync('dist/index.html', 'utf8');
+          for (const [attribute, path] of [
+            ['href', 'public/assets/css/admin.css'],
+            ['src', 'supabase-config.js'],
+            ['src', 'public/assets/js/static-admin.js'],
+          ]) {
+            const asset = `${attribute}="${path}"`;
+            if (!html.includes(asset)) {
+              throw new Error(`The static app is missing the ${path} asset reference.`);
+            }
+            html = html.replace(asset, `${attribute}="${path}?v=${buildId}"`);
+          }
+          fs.writeFileSync('dist/index.html', html);
 
           fs.writeFileSync(
             'dist/supabase-config.js',
