@@ -641,22 +641,68 @@
             (typeof references === 'string' && references.trim() !== '')
         );
         if (renderedEntries.length === 0) {
-            cell.textContent = typeof legacyReference === 'string' && legacyReference.trim()
-                ? `Legacy record reference: ${legacyReference}`
-                : '—';
+            if (typeof legacyReference === 'string' && legacyReference.trim()) {
+                renderPlantReferenceDisclosure(cell, [{
+                    label: 'Legacy reference',
+                    sources: [legacyReference],
+                }]);
+            } else {
+                cell.textContent = '—';
+            }
             return;
         }
-        renderedEntries.forEach(([fieldName, references]) => {
+        renderPlantReferenceDisclosure(cell, renderedEntries.map(([fieldName, references]) => {
             const sources = Array.isArray(references)
                 ? references.filter((item) => typeof item === 'string' && item.trim())
                 : [references];
+            return {
+                label: plantFactLabels[fieldName] ?? fieldName,
+                sources,
+            };
+        }));
+    }
+
+    function renderPlantReferenceDisclosure(cell, entries) {
+        const sourceCount = entries.reduce((count, entry) => count + entry.sources.length, 0);
+        const disclosure = document.createElement('details');
+        disclosure.className = 'plant-references';
+        const summary = document.createElement('summary');
+        summary.textContent = `${entries.length} ${entries.length === 1 ? 'fact' : 'facts'} · ${sourceCount} ${sourceCount === 1 ? 'source' : 'sources'}`;
+        disclosure.append(summary);
+
+        const list = createElement('div', 'plant-reference-list');
+        entries.forEach(({ label, sources }) => {
             const entry = createElement('div', 'plant-reference-entry');
-            entry.append(
-                createElement('strong', '', `${plantFactLabels[fieldName] ?? fieldName}: `),
-                document.createTextNode(sources.join('; '))
-            );
-            cell.append(entry);
+            entry.append(createElement('strong', '', `${label}:`));
+            const sourceList = createElement('ul', 'plant-reference-sources');
+            sources.forEach((source) => {
+                const sourceItem = document.createElement('li');
+                sourceItem.append(createPlantReferenceLink(source));
+                sourceList.append(sourceItem);
+            });
+            entry.append(sourceList);
+            list.append(entry);
         });
+        disclosure.append(list);
+        cell.append(disclosure);
+    }
+
+    function createPlantReferenceLink(source) {
+        const value = source.trim();
+        try {
+            const url = new URL(value);
+            if (url.protocol === 'https:' || url.protocol === 'http:') {
+                const link = createElement('a', 'plant-reference-link', `${url.hostname}${url.pathname}`);
+                link.href = url.href;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.title = value;
+                return link;
+            }
+        } catch {
+            // Non-URL references are shown as plain text.
+        }
+        return createElement('span', 'plant-reference-text', value);
     }
 
     async function savePlant(event) {

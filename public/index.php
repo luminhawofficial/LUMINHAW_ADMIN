@@ -272,7 +272,7 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                             <p class="module-note plant-form-wide">Every populated fact requires its own reference. Enter one source per line; a fact can have multiple references. If a source supports multiple facts, add it to each relevant fact.</p>
                             <button class="primary-button" type="submit">Save plant</button>
                         </form>
-                        <div class="table-scroll"><table><thead><tr><th>PICTURE</th><th>COMMON NAME</th><th>SCIENTIFIC NAME</th><th>TAGALOG</th><th>BISAYA</th><th>FIELD REFERENCES</th><th>UPDATED</th><th>ACTION</th></tr></thead><tbody data-plant-records><tr><td colspan="8">Loading plant library…</td></tr></tbody></table></div>
+                        <div class="table-scroll"><table class="plant-library-table"><thead><tr><th>PICTURE</th><th>COMMON NAME</th><th>SCIENTIFIC NAME</th><th>TAGALOG</th><th>BISAYA</th><th>FIELD REFERENCES</th><th>UPDATED</th><th>ACTION</th></tr></thead><tbody data-plant-records><tr><td colspan="8">Loading plant library…</td></tr></tbody></table></div>
                     <?php elseif ($module === 'subscriptions'): ?>
                         <div class="notice-banner">A payment awaiting manual review is not an active Premium subscription. The Admin verifies receipts in Payment Management; only confirmed payments activate Premium.</div>
                         <div class="table-scroll"><table><thead><tr><th>USER</th><th>PRODUCT</th><th>STATUS</th><th>EXPIRES</th><th>UPDATED</th></tr></thead><tbody data-records></tbody></table></div>
