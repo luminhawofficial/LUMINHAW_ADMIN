@@ -277,7 +277,6 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                         <div class="notice-banner">A payment awaiting manual review is not an active Premium subscription. The Admin verifies receipts in Payment Management; only confirmed payments activate Premium.</div>
                         <div class="table-scroll"><table><thead><tr><th>USER</th><th>PRODUCT</th><th>STATUS</th><th>EXPIRES</th><th>UPDATED</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'payments'): ?>
-                        <div class="notice-banner">The Admin can review payments. Approve only after confirming the GCash transaction in authorized merchant records. The existing email-token review remains available.</div>
                         <div class="table-scroll"><table><thead><tr><th>PAYMENT</th><th>USER</th><th>PLAN / AMOUNT</th><th>REFERENCE</th><th>RECEIPT</th><th>OCR REVIEW</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'announcements'): ?>
                         <form class="announcement-form" data-announcement-form>

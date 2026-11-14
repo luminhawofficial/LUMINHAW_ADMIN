@@ -205,6 +205,9 @@
             plant_catalog_unavailable: 'Plant catalog data could not be loaded.',
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
             plant_catalog_save_failed: 'The plant record was not saved.',
+            invalid_plant_catalog_record: 'Check the plant names, HTTPS picture URL, date, and field values.',
+            plant_catalog_record_not_found: 'This plant record no longer exists. Reload the library and try again.',
+            plant_catalog_audit_unavailable: 'The plant was saved, but its audit entry could not be written. Contact an administrator before retrying.',
             unsupported_admin_action: 'The deployed admin API does not support this action yet. Deploy an admin-api version that includes the requested action.',
             plant_reference_required: 'Add at least one source for every populated plant fact.',
             payment_records_unavailable: 'Payment records could not be loaded.',
@@ -1210,7 +1213,7 @@
                 row.append(actionCell);
                 return row;
             });
-            setFeedback('Admin payment reviews are audited. Verify receipt details against authorized GCash records before approval.');
+            setFeedback('Admin payment reviews are audited.');
         } catch (error) {
             setFeedback(error.message, true);
             emptyRow(document.querySelector('[data-records]'), 8, error.message);
@@ -1248,15 +1251,15 @@
                 if (!approve) {
                     showToast(`Payment rejected. Customer email status: ${deliveryStatus}.`);
                 } else if (deliveryStatus === 'sent') {
-                    showToast('Payment approved and Premium activated. Confirmation email sent to the customer.');
+                    showToast("Payment approved. The customer's Premium access has been upgraded, and confirmation email was sent.");
                 } else if (deliveryStatus === 'failed') {
-                    showToast('Payment approved and Premium activated. The confirmation email was not sent. Check email delivery configuration.');
+                    showToast("Payment approved. The customer's Premium access has been upgraded, but the confirmation email could not be sent. Check email delivery configuration.");
                 } else if (deliveryStatus === 'not_configured') {
-                    showToast('Payment approved and Premium activated, but no customer confirmation email was configured.');
+                    showToast("Payment approved. The customer's Premium access has been upgraded, but customer confirmation email is not configured.");
                 } else if (deliveryStatus === 'processing') {
-                    showToast('Payment approved and Premium activated. The confirmation email is still processing.');
+                    showToast("Payment approved. The customer's Premium access has been upgraded. Confirmation email is still processing.");
                 } else {
-                    showToast('Payment approved and Premium activated, but confirmation email delivery could not be confirmed.');
+                    showToast("Payment approved. The customer's Premium access has been upgraded, but email delivery could not be confirmed.");
                 }
                 await loadPayments();
             } catch (error) {

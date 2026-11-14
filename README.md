@@ -60,8 +60,10 @@ sources per fact. Date updated is record metadata and does not require a
 citation. Legacy record-level `reference` values are shown for existing data
 but are not treated as proof for individual facts.
 
-The Edge Function is not part of this repository. Before deploying the UI,
-implement these actions there and enforce admin-only create/update access and
+The Edge Function source is maintained separately in
+[LUMINHAW-APP](https://github.com/luminhawofficial/LUMINHAW-APP/tree/main/supabase/functions/admin-api).
+Deploy its plant-catalog migration and `admin-api` function before using this
+UI; the function enforces admin-only create/update access and validates
 per-populated-field references server-side. The existing catalog tables are
 service-role only, so browser clients must not write directly to Supabase. The
 user-facing library belongs to the LUMINHAW app and should expose the reference
