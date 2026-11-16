@@ -89,11 +89,9 @@ admin-only `admin-api` actions:
   pending requests may be reviewed; the server must reject stale or repeated
   decisions.
 
-These actions are not currently implemented by the deployed `admin-api`.
-Until they are added and deployed, the page will report the unsupported action
-instead of changing an account. Deletion and authorization must be enforced
-server-side; the browser confirmation is an additional safeguard, not an
-authorization boundary.
+The deployed `admin-api` supports these actions. It enforces administrator
+authorization server-side; the browser confirmation is an additional safeguard,
+not an authorization boundary.
 
 ## Existing PHP app
 
