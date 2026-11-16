@@ -21,6 +21,7 @@ $module = (string) ($_GET['module'] ?? 'dashboard');
 $titles = [
     'dashboard' => 'Dashboard',
     'users' => 'User Management',
+    'account_deletions' => 'Account Deletion Requests',
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
@@ -50,6 +51,7 @@ if (!in_array($module, $visibleModules, true)) {
 $navigation = [
     'dashboard' => 'Dashboard',
     'users' => 'User Management',
+    'account_deletions' => 'Account Deletion Requests',
     'scans' => 'AI Plant Identification',
     'health' => 'Plant Health Monitoring',
     'garden' => 'Garden Management',
@@ -64,6 +66,7 @@ $navigation = [
 $navigationIcons = [
     'dashboard' => 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z',
     'users' => 'M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
+    'account_deletions' => 'M4 7h16 M10 11v6 M14 11v6 M5 7l1 14h12l1-14 M9 7V4h6v3',
     'scans' => 'M4 8V5a1 1 0 0 1 1-1h3 M16 4h3a1 1 0 0 1 1 1v3 M20 16v3a1 1 0 0 1-1 1h-3 M8 20H5a1 1 0 0 1-1-1v-3 M8 12h8 M12 8v8',
     'health' => 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z M3 12h4l2-3 3 6 2-3h7',
     'garden' => 'M12 22v-8 M12 14c-4 0-7-2-7-6 4 0 7 2 7 6z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z',
@@ -240,6 +243,9 @@ $roleLabel = ucwords(str_replace('_', ' ', $role));
                     <?php if ($module === 'users'): ?>
                         <div class="table-scroll"><table><thead><tr><th>USER</th><th>EMAIL</th><th>REGISTERED</th><th>VERIFIED</th><th>PLAN</th><th>ACCOUNT</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div>
                         <div class="pagination-controls"><button type="button" data-page-prev>Previous</button><span data-page-label></span><button type="button" data-page-next>Next</button></div>
+                    <?php elseif ($module === 'account_deletions'): ?>
+                        <div class="notice-banner">Approving a request permanently deletes the user's account and associated data. This cannot be undone.</div>
+                        <div class="table-scroll"><table><thead><tr><th>USER</th><th>EMAIL</th><th>REQUESTED</th><th>REASON</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'scans'): ?>
                         <div class="table-scroll"><table><thead><tr><th>IMAGE</th><th>USER</th><th>RESULT</th><th>MATCH CONFIDENCE</th><th>MATCH</th><th>PROVIDER</th><th>STATUS</th><th>DATE</th></tr></thead><tbody data-records></tbody></table></div>
                     <?php elseif ($module === 'health'): ?>

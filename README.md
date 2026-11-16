@@ -72,6 +72,29 @@ alongside the corresponding fact. If the admin app reports
 updated to support the plant-catalog actions; deploy the function changes
 before using the Plant Library.
 
+## Account deletion requests
+
+The admin clients provide a separate **Account Deletion Requests** page for
+reviewing user-submitted deletion requests; User Management remains limited to
+searching, suspending, and reactivating accounts. The page expects these
+admin-only `admin-api` actions:
+
+- `account_deletion_requests.list` returns
+  `{ "requests": [{ "id": "...", "user_id": "...", "display_name": "...", "email": "...", "requested_at": "...", "reason": "...", "status": "pending" }] }`.
+- `account_deletion_requests.review` accepts
+  `{ "request_id": "...", "decision": "approve" }` or
+  `{ "request_id": "...", "decision": "reject" }`. Approval must permanently
+  delete the requested Supabase Auth account and its associated user data;
+  rejection must preserve the account and mark the request rejected. Only
+  pending requests may be reviewed; the server must reject stale or repeated
+  decisions.
+
+These actions are not currently implemented by the deployed `admin-api`.
+Until they are added and deployed, the page will report the unsupported action
+instead of changing an account. Deletion and authorization must be enforced
+server-side; the browser confirmation is an additional safeguard, not an
+authorization boundary.
+
 ## Existing PHP app
 
 The original PHP authentication system remains in `public/login.php`, `public/index.php`, `public/api.php`, and `public/logout.php`, with shared services in `app/`. The PHP app uses Supabase Auth and the same `admin-api` Edge Function. It is not executed by GitHub Pages.

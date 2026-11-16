@@ -4,6 +4,7 @@
     const moduleLabels = {
         dashboard: 'Dashboard',
         users: 'User Management',
+        account_deletions: 'Account Deletion Requests',
         scans: 'AI Plant Identification',
         health: 'Plant Health Monitoring',
         garden: 'Garden Management',
@@ -202,6 +203,8 @@
             dashboard_data_unavailable: 'Live dashboard data is unavailable. Check that the admin migration is applied.',
             user_records_unavailable: 'User records could not be loaded.',
             user_status_update_failed: 'The account status was not changed.',
+            account_deletion_requests_unavailable: 'Account deletion requests could not be loaded.',
+            account_deletion_request_review_failed: 'The account deletion request was not updated.',
             plant_catalog_unavailable: 'Plant catalog data could not be loaded.',
             plant_details_unavailable: 'Plant care or image details could not be loaded.',
             plant_catalog_save_failed: 'The plant record was not saved.',
@@ -488,6 +491,9 @@
                 break;
             case 'users':
                 loadUsers();
+                break;
+            case 'account_deletions':
+                loadAccountDeletionRequests();
                 break;
             case 'scans':
                 loadPlantRecords('scans.list', false);
@@ -795,6 +801,81 @@
             showToast(`Account ${nextStatus === 'active' ? 'reactivated' : 'suspended'}; user data was preserved.`);
             await loadUsers();
         } catch (error) {
+            showToast(error.message);
+        }
+    }
+
+    function renderAccountDeletionRequests(result) {
+        const requests = result?.requests ?? [];
+        setRows(requests, 6, (request) => {
+            const row = document.createElement('tr');
+            const identity = createElement(
+                'div',
+                'user-cell',
+                request.display_name || request.email || request.user_id || '—'
+            );
+            const identityCell = document.createElement('td');
+            identityCell.append(identity);
+            row.append(
+                identityCell,
+                cell(request.email),
+                cell(formatDate(request.requested_at)),
+                cell(request.reason),
+                statusBadge(request.status)
+            );
+
+            const actionCell = document.createElement('td');
+            if (request.status === 'pending' && typeof request.id === 'string') {
+                const approveButton = createElement('button', 'primary-button compact-button', 'Approve deletion');
+                approveButton.type = 'button';
+                approveButton.addEventListener('click', () => reviewAccountDeletionRequest(request, 'approve', actionCell));
+                const rejectButton = createElement('button', 'secondary-button compact-button', 'Reject');
+                rejectButton.type = 'button';
+                rejectButton.addEventListener('click', () => reviewAccountDeletionRequest(request, 'reject', actionCell));
+                actionCell.append(approveButton, rejectButton);
+            } else {
+                actionCell.textContent = 'No action available';
+            }
+            row.append(actionCell);
+            return row;
+        });
+    }
+
+    async function loadAccountDeletionRequests() {
+        try {
+            const payload = await requestApi('account_deletion_requests.list');
+            renderAccountDeletionRequests(payload);
+            setFeedback('Review pending requests here. Account deletion is separate from User Management.');
+        } catch (error) {
+            setFeedback(error.message, true);
+            emptyRow(document.querySelector('[data-records]'), 6, error.message);
+        }
+    }
+
+    async function reviewAccountDeletionRequest(request, decision, actionCell) {
+        const email = request.email || request.user_id || 'this user';
+        const confirmed = decision === 'approve'
+            ? window.confirm(`Permanently delete ${email}'s account and associated data? This cannot be undone.`)
+            : window.confirm(`Reject the account deletion request from ${email}?`);
+        if (!confirmed) return;
+
+        const buttons = actionCell.querySelectorAll('button');
+        buttons.forEach((button) => {
+            button.disabled = true;
+        });
+        try {
+            await requestApi('account_deletion_requests.review', {
+                method: 'POST',
+                data: { request_id: request.id, decision },
+            });
+            showToast(decision === 'approve'
+                ? 'Account deletion approved. The account was permanently deleted.'
+                : 'Account deletion request rejected.');
+            await loadAccountDeletionRequests();
+        } catch (error) {
+            buttons.forEach((button) => {
+                button.disabled = false;
+            });
             showToast(error.message);
         }
     }
